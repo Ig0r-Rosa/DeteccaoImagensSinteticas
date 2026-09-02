@@ -11,7 +11,7 @@
 
 ## Pré-requisitos
 
-- Resultados do [02-codigo.md](02-codigo.md) (Fase 5).
+- Resultados do [02-codigo.md](02-codigo.md) (Fase 6).
 - Conteúdo base do [05-poster.md](05-poster.md) (texto e figuras).
 
 ---
@@ -35,7 +35,7 @@
 | 5 | Objetivo do trabalho |
 | 6 | Dataset (real vs sintético) |
 | 7 | Pipeline de transformações |
-| 8 | Arquitetura do detector |
+| 8 | Features clássicas + classificador (FFT, HOG, SVM) |
 | 9 | Metodologia experimental |
 | 10 | Resultados — baseline (original) |
 | 11 | Resultados — degradação por transformação |

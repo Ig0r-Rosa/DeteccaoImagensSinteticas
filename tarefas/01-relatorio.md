@@ -55,9 +55,9 @@
 | 2.1 | Capa e resumo (problema, método, resultados principais) | A | Resumo com ~200 palavras |
 | 2.2 | Seção 1 — Introdução (contexto, motivação, pergunta de pesquisa) | A | Clareza para leitor externo |
 | 2.3 | Seção 2 — Revisão bibliográfica (3–5 papers, estado da arte) | B | Citações corretas |
-| 2.4 | Seção 3 — Metodologia (dataset, transformações, modelo, métricas) | A | Reutilizar `docs/metodo.md` |
-| 2.5 | Seção 4 — Resultados (tabelas, gráficos, análise de degradação) | A | Dados de `results/metrics.csv` |
-| 2.6 | Seção 5 — Discussão (por que certas transformações degradam mais) | B | Conexão com literatura |
+| 2.4 | Seção 3 — Metodologia (dataset, transformações, features clássicas, SVM/kNN) | A | Reutilizar `docs/metodo.md` |
+| 2.5 | Seção 4 — Resultados (tabelas, gráficos, degradação por feature) | A | Dados de `results/metrics.csv` |
+| 2.6 | Seção 5 — Discussão (qual feature degrada mais e por quê) | B | Conexão com domínios da disciplina |
 | 2.7 | Seção 6 — Conclusão (achados, limitações, trabalhos futuros) | B | Alinhado com poster e slides |
 | 2.8 | Referências bibliográficas formatadas | B | Formato consistente (ABNT ou IEEE) |
 

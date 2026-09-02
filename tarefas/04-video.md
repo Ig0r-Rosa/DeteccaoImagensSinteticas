@@ -13,7 +13,7 @@
 ## Pré-requisitos
 
 - Slides prontos ([03-slides.md](03-slides.md)).
-- Código funcional com demo gravável ([02-codigo.md](02-codigo.md) Fase 6).
+- Código funcional com demo gravável ([02-codigo.md](02-codigo.md) Fase 7).
 
 ---
 
@@ -31,8 +31,8 @@
 |---|---|---|
 | Abertura | ~30 s | Título, autores, problema |
 | Contexto | ~1 min | Por que robustez importa |
-| Método | ~2 min | Dataset, transformações, detector |
-| Demo | ~2 min | Rodar código ao vivo |
+| Método | ~2 min | Dataset, transformações, features clássicas, SVM |
+| Demo | ~2 min | Extrair features e classificar imagens ao vivo |
 | Resultados | ~1,5 min | Gráfico de degradação |
 | Conclusão | ~1 min | Achados e limitações |
 

@@ -16,7 +16,8 @@ Checklist dividido em **5 entregas do Moodle**, com etapas pequenas para **2 pes
 | Área | Pessoa A | Pessoa B |
 |---|---|---|
 | Dados e transformações | Principal | Apoio |
-| Modelo e avaliação | Apoio | Principal |
+| Extração de features clássicas | Apoio | Principal |
+| Classificador (SVM/kNN) e avaliação | Apoio | Principal |
 | Gráficos e resultados | Principal | Apoio |
 | Estrutura do repositório | Apoio | Principal |
 | Poster (diagramação) | Principal | Revisão |

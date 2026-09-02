@@ -11,7 +11,7 @@
 
 ## Pré-requisitos
 
-- Resultados preliminares do [02-codigo.md](02-codigo.md) (Fases 3 e 5 no mínimo).
+- Resultados preliminares do [02-codigo.md](02-codigo.md) (Fases 3 e 6 no mínimo).
 - Amostras visuais e gráfico de degradação em `results/`.
 
 ---
@@ -39,7 +39,7 @@
 | 2.1 | Escrever título e autores (nomes + UFSC) | B | Texto revisado |
 | 2.2 | Escrever seção **Problema** (2–3 frases + motivação) | B | Clareza para leigo |
 | 2.3 | Escrever seção **Pergunta de pesquisa** | B | Pergunta destacada visualmente |
-| 2.4 | Escrever seção **Método** (dataset → transformações → detector → métricas) | B | Fluxograma ou bullets |
+| 2.4 | Escrever seção **Método** (dataset → transformações → features clássicas → SVM/kNN) | B | Fluxograma ou bullets |
 | 2.5 | Escrever seção **Resultados** (tabela ou gráfico de degradação) | A | Dados reais do experimento |
 | 2.6 | Escrever seção **Conclusão** (3 bullets: achados, limitações, trabalhos futuros) | B | Texto conciso |
 | 2.7 | Selecionar 3–5 imagens antes/depois das transformações | A | Imagens de `results/samples/` |
