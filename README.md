@@ -12,6 +12,24 @@ Avaliar a **robustez** de detectores de imagens geradas por IA quando essas imag
 
 > Quão robustos são detectores de imagens sintéticas quando a imagem sofre transformações típicas de circulação na internet?
 
+## Contexto e aplicações reais
+
+| Cenário | O que acontece | Por que importa |
+|---|---|---|
+| **Política em período eleitoral** | Fotos de candidatos são manipuladas ou geradas por IA e compartilhadas em redes sociais (WhatsApp, Instagram, X) | Desinformação visual influencia eleitores; a imagem raramente chega intacta — passa por crop, compressão e repostagens |
+| **Venda de imóveis** | Anúncios alteram fotos do imóvel (cores, iluminação, remoção de defeitos, ampliação de cômodos) para parecer mais atrativo | Comprador decide com base em imagem enganosa; transformações escondem sinais de edição |
+
+Esses casos motivam o foco em **robustez**: a imagem que o detector recebe quase nunca é a original — é uma versão já transformada pela circulação digital ou pela intenção de manipulação.
+
+## Testes preliminares
+
+Os exemplos em [`Exemplos/`](Exemplos/) foram testados com o **[ZeroGPT AI Image Detector](https://www.zerogpt.com/pt/ai-image-detector)** para ilustrar como transformações afetam detectores existentes.
+
+| Etapa | Ferramenta | Papel |
+|---|---|---|
+| Testes exploratórios | [ZeroGPT](https://www.zerogpt.com/pt/ai-image-detector) | Screenshots de referência (`GeradaIA/`, `EditadaIA/`) |
+| Trabalho final | Visão clássica (FFT, HOG, LBP + SVM) | Detector próprio implementado no código |
+
 ## Ideia do projeto
 
 Em vez de apenas treinar um classificador "real vs IA", este trabalho é um **experimento científico de robustez**:

@@ -30,7 +30,7 @@
 | Trecho | Duração | Conteúdo |
 |---|---|---|
 | Abertura | ~30 s | Título, autores, problema |
-| Contexto | ~1 min | Por que robustez importa |
+| Contexto | ~1 min | Política eleitoral, imóveis, por que robustez importa |
 | Método | ~2 min | Dataset, transformações, features clássicas, SVM |
 | Demo | ~2 min | Extrair features e classificar imagens ao vivo |
 | Resultados | ~1,5 min | Gráfico de degradação |

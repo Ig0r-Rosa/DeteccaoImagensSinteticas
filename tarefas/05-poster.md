@@ -37,7 +37,7 @@
 | # | Tarefa | Resp. | Critério de pronto |
 |---|---|---|---|
 | 2.1 | Escrever título e autores (nomes + UFSC) | B | Texto revisado |
-| 2.2 | Escrever seção **Problema** (2–3 frases + motivação) | B | Clareza para leigo |
+| 2.2 | Escrever seção **Problema** (2–3 frases + cenários: política eleitoral e imóveis) | B | Clareza para leigo |
 | 2.3 | Escrever seção **Pergunta de pesquisa** | B | Pergunta destacada visualmente |
 | 2.4 | Escrever seção **Método** (dataset → transformações → features clássicas → SVM/kNN) | B | Fluxograma ou bullets |
 | 2.5 | Escrever seção **Resultados** (tabela ou gráfico de degradação) | A | Dados reais do experimento |

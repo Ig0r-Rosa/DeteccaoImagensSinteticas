@@ -39,7 +39,7 @@
 
 | # | Tarefa | Resp. | Critério de pronto |
 |---|---|---|---|
-| 2.1 | Ler 3–5 papers sobre detecção de imagens sintéticas e robustez | A+B | Resumo de 1 parágrafo por paper em `docs/referencias.md` |
+| 2.1 | Ler 3–5 papers + testar imagens no [ZeroGPT AI Image Detector](https://www.zerogpt.com/pt/ai-image-detector) | A+B | Resumo em `docs/referencias.md` + screenshots em `Exemplos/` |
 | 2.2 | Escolher dataset (ex.: CIFAKE, GenImage subset, ou real vs Stable Diffusion) | A | Dataset definido com justificativa |
 | 2.3 | Baixar e organizar dataset em `data/raw/` (real/ e fake/) | A | Pastas com imagens separadas por classe |
 | 2.4 | Criar split treino/val/teste (ex.: 70/15/15) | A | Arquivo `data/splits.json` gerado |

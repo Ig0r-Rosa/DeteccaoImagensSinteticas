@@ -29,7 +29,7 @@
 | Slide | Conteúdo |
 |---|---|
 | 1 | Título, autores, disciplina |
-| 2 | Contexto (imagens de IA na internet) |
+| 2 | Contexto (imagens de IA + manipulação em política e imóveis) |
 | 3 | Problema e motivação |
 | 4 | Pergunta de pesquisa |
 | 5 | Objetivo do trabalho |

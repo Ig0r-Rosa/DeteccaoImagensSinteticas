@@ -53,7 +53,7 @@
 | # | Tarefa | Resp. | Critério de pronto |
 |---|---|---|---|
 | 2.1 | Capa e resumo (problema, método, resultados principais) | A | Resumo com ~200 palavras |
-| 2.2 | Seção 1 — Introdução (contexto, motivação, pergunta de pesquisa) | A | Clareza para leitor externo |
+| 2.2 | Seção 1 — Introdução (contexto: política eleitoral, imóveis, manipulação visual) | A | Clareza para leitor externo |
 | 2.3 | Seção 2 — Revisão bibliográfica (3–5 papers, estado da arte) | B | Citações corretas |
 | 2.4 | Seção 3 — Metodologia (dataset, transformações, features clássicas, SVM/kNN) | A | Reutilizar `docs/metodo.md` |
 | 2.5 | Seção 4 — Resultados (tabelas, gráficos, degradação por feature) | A | Dados de `results/metrics.csv` |
