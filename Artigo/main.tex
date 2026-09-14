@@ -1,0 +1,108 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+\sloppy
+
+\title{Detecção de Imagens Sintéticas após Transformações Digitais}
+
+\author{Nathália G. Ribas\inst{1}, Igor M. da Rosa\inst{1}}
+
+\address{Departamento de Computação (DEC)\\
+Universidade Federal de Santa Catarina\\
+Araranguá, SC
+\email{ribas.nathalia@grad.ufsc.br, igor.matos.rosa@grad.ufsc.br}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This work evaluates how classical computer vision detectors of AI-generated images behave when images undergo common digital transformations (JPEG compression, crop, resize, blur, among others). Features such as FFT, HOG and LBP, combined with SVM or kNN classifiers, will be trained on original images and then tested on transformed versions, measuring accuracy degradation per transformation and per feature family.
+\end{abstract}
+
+\begin{resumo}
+Este trabalho avalia a robustez de detectores clássicos de imagens geradas por IA quando essas imagens sofrem transformações típicas de compartilhamento digital (compressão JPEG, crop, resize, blur, entre outras). Serão utilizadas features como FFT, HOG e LBP, com classificadores SVM ou kNN, treinados em imagens originais e testados nas versões transformadas, medindo a queda de desempenho por transformação e por família de features.
+\end{resumo}
+
+%----------------------------------------------------------------------
+\section{Introdução}
+%----------------------------------------------------------------------
+
+Geradores de imagem baseados em IA produzem conteúdos cada vez mais realistas, dificultando a distinção visual entre fotografias reais e sintéticas. Em contextos sensíveis --- como campanhas eleitorais e anúncios imobiliários --- imagens manipuladas ou geradas circulam em redes sociais após compressão, recortes e redimensionamentos, o que pode degradar os sinais usados pelos detectores.
+
+A pergunta central deste projeto é: \emph{quão robustos são detectores de imagens sintéticas quando a imagem sofre transformações típicas de circulação na internet?} Em vez de apenas classificar ``real versus IA'', o foco é um experimento de robustez: treinar com imagens intactas e medir a degradação após transformações controladas.
+
+A abordagem adota visão computacional clássica (extração manual de features + SVM/kNN), alinhada ao conteúdo da disciplina, e permite analisar quais domínios --- frequência, espaço ou textura --- resistem melhor a cada tipo de transformação.
+
+%----------------------------------------------------------------------
+\section{Trabalhos Relacionados}
+%----------------------------------------------------------------------
+
+A detecção de imagens sintéticas combina abordagens clássicas (features manuais) e modernas (redes profundas). Bird e Lotfi~\cite{bird2024cifake} propuseram o dataset CIFAKE e classificadores CNN com cerca de 93\% de acurácia. Cozzolino et al.~\cite{cozzolino2024clip} elevam o desempenho com representações CLIP. Li et al.~\cite{li2025bridging,li2026phase} reforçam a importância de avaliar detectores sob condições reais (compartilhamento, compressão).
+
+No domínio da frequência, Frank et al.~\cite{frank2020frequency} mostraram que imagens geradas por GANs deixam artefatos consistentes no espectro, permitindo separação eficiente e maior robustez a perturbações comuns (blur, crop). Bammey~\cite{bammey2024synthbuster} estende essa linha aos modelos de difusão com o Synthbuster: analisa picos no espectro de Fourier de um residual passa-alta e detecta imagens sintéticas mesmo sob compressão JPEG leve, com alguma generalização a geradores não vistos.
+
+Em features manuais, Nirob et al.~\cite{nirob2026handcrafted} avaliam sistematicamente descritores como histograma de cores, DCT, HOG, LBP, GLCM e wavelets no CIFAKE, combinados a classificadores clássicos e ensembles (ex.: LightGBM). A fusão de features handcrafted obteve desempenho competitivo, reforçando a viabilidade de abordagens interpretáveis e eficientes --- alinhadas à proposta deste trabalho.
+
+Já Choi et al.~\cite{choi2025warpad} propõem o WaRPAD, método \emph{training-free} baseado na robustez a crop/resize: medem a sensibilidade de embeddings auto-supervisionados a perturbações em alta frequência (wavelets Haar) e mostram boa resistência a corrupções em tempo de teste. Embora usem modelos pré-treinados, a motivação (crop + frequência) dialoga diretamente com o nosso experimento de robustez.
+
+Em síntese, a literatura justifica: (i)~usar frequência e textura clássicas~\cite{frank2020frequency,bammey2024synthbuster,nirob2026handcrafted,gonzalez2008}; (ii)~medir o efeito de transformações~\cite{choi2025warpad,li2025bridging}. Este projeto diferencia-se ao treinar SVM/kNN só em imagens intactas e quantificar, de forma controlada, a degradação por transformação e por família de feature.
+
+%----------------------------------------------------------------------
+\section{Desenvolvimento}
+%----------------------------------------------------------------------
+
+\subsection{Abordagem proposta}
+
+O pipeline previsto possui quatro etapas: (i)~obter imagens reais e sintéticas; (ii)~extrair features clássicas das imagens \emph{originais} e treinar um classificador; (iii)~aplicar transformações sistemáticas; (iv)~medir a queda de acurácia por transformação e por tipo de feature. A ideia segue a linha de avaliação sob condições realistas~\cite{li2025bridging,choi2025warpad}, porém com visão clássica.
+
+\subsection{Técnicas e algoritmos}
+
+As opções de features cobrem os três domínios da disciplina e têm respaldo na literatura e em bibliotecas como OpenCV e scikit-image:
+
+\begin{itemize}
+\item \textbf{Frequência:} FFT / espectro de magnitude (e, se útil, DCT) --- artefatos de geração e efeitos de JPEG~\cite{frank2020frequency,bammey2024synthbuster,li2026phase,gonzalez2008}.
+\item \textbf{Espaço:} HOG e bordas (Sobel/Canny) --- gradientes e estrutura local~\cite{nirob2026handcrafted,gonzalez2008}.
+\item \textbf{Textura/valor:} LBP, histograma RGB/HSV e, opcionalmente, GLCM --- textura e distribuição de intensidade~\cite{nirob2026handcrafted}.
+\end{itemize}
+
+Como classificador, a escolha principal é \textbf{SVM} (com kNN como alternativa), por serem métodos clássicos, interpretáveis e adequados a vetores de dimensão moderada~\cite{gonzalez2008}. Nirob et al.~\cite{nirob2026handcrafted} mostram ganhos com ensembles sobre features handcrafted; neste projeto priorizamos SVM/kNN por alinhamento à disciplina, mantendo a fusão de features como extensão possível. Escopo mínimo: duas famílias + SVM; recomendado: comparar robustez entre FFT, HOG e LBP.
+
+\subsection{Dados}
+
+Será utilizado o dataset \textbf{CIFAKE}~\cite{bird2024cifake}, também empregado por Nirob et al.~\cite{nirob2026handcrafted}: cerca de 120 mil imagens $32{\times}32$ (60 mil reais do CIFAR-10 e 60 mil sintéticas via Stable Diffusion 1.4), particionadas em treino e teste (\texttt{REAL}/\texttt{FAKE}). Os dados serão \emph{extraídos} do repositório público (ex.: Kaggle), sem coleta própria nesta etapa.
+
+Complementarmente, testes exploratórios com imagens externas (geradas/editadas por IA) e o detector ZeroGPT ilustram o efeito de transformações em ferramentas existentes, sem substituir o experimento controlado no CIFAKE.
+
+\subsection{Transformações planejadas}
+
+As transformações simulam o caminho típico de uma imagem na internet e ecoam cenários já apontados na literatura (JPEG~\cite{bammey2024synthbuster,li2026phase}; crop/resize~\cite{choi2025warpad,frank2020frequency}):
+
+\begin{itemize}
+\item Compressão JPEG (ex.: 90\%, 70\%, 50\%);
+\item Geometria: resize e crop (10\%, 25\%, 40\%);
+\item Captura: screenshot simulado;
+\item Filtros: blur, sharpen, brilho/contraste;
+\item Pipeline combinado: crop $\rightarrow$ resize $\rightarrow$ JPEG.
+\end{itemize}
+
+\subsection{Avaliação (próximos passos)}
+
+A métrica principal será a acurácia (e, se pertinente, precisão/recall) no teste \emph{sem} transformação (baseline) e \emph{com} cada transformação. A análise buscará identificar quais padrões desaparecem e quais features degradam menos --- conectando frequência, espaço e textura aos achados de~\cite{frank2020frequency,nirob2026handcrafted,bammey2024synthbuster}.
+
+%----------------------------------------------------------------------
+\section*{Agradecimentos}
+%----------------------------------------------------------------------
+
+Trabalho desenvolvido na disciplina INE410159 / TRV410001 --- Visão Computacional (UFSC, 2026.2). Esta é a versão prévia (Avaliação I --- E1) da definição do projeto.
+
+\bibliographystyle{sbc}
+\bibliography{referencias}
+
+\end{document}

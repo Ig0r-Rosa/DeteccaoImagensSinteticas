@@ -1,0 +1,58 @@
+\begin{thebibliography}{}
+
+\bibitem[Bammey 2024]{bammey2024synthbuster}
+Bammey, Q. (2024).
+\newblock Synthbuster: Towards detection of diffusion model generated images.
+\newblock {\em IEEE Open Journal of Signal Processing}, 5:1--11.
+
+\bibitem[Bird and Lotfi 2024]{bird2024cifake}
+Bird, J.~J. and Lotfi, A. (2024).
+\newblock {CIFAKE}: Image classification and explainable identification of
+  {AI}-generated synthetic images.
+\newblock {\em IEEE Access}, 12:15642--15650.
+
+\bibitem[Choi et~al. 2025]{choi2025warpad}
+Choi, S., Lee, H., and Lee, M. (2025).
+\newblock Training-free detection of {AI}-generated images via cropping
+  robustness.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)}.
+
+\bibitem[Cozzolino et~al. 2024]{cozzolino2024clip}
+Cozzolino, D., Poggi, G., Corvi, R., Dundar, A., and Verdoliva, L. (2024).
+\newblock Raising the bar of {AI}-generated image detection with {CLIP}.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition Workshops (CVPRW)}.
+
+\bibitem[Frank et~al. 2020]{frank2020frequency}
+Frank, J., Eisenhofer, T., Sch{\"o}nherr, L., Fischer, A., Kolossa, D., and
+  Holz, T. (2020).
+\newblock Leveraging frequency analysis for deep fake image recognition.
+\newblock In {\em International Conference on Machine Learning (ICML)}.
+
+\bibitem[Gonzalez and Woods 2008]{gonzalez2008}
+Gonzalez, R.~C. and Woods, R.~E. (2008).
+\newblock {\em Digital Image Processing}.
+\newblock Pearson, 3 edition.
+
+\bibitem[Li et~al. 2025]{li2025bridging}
+Li, C., Wang, X., Li, M., Miao, B., Sun, P., Zhang, Y., Ji, X., and Zhu, Y.
+  (2025).
+\newblock Bridging the gap between ideal and real-world evaluation:
+  Benchmarking {AI}-generated image detection in challenging scenarios.
+\newblock In {\em IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages 20379--20389.
+
+\bibitem[Li et~al. 2026]{li2026phase}
+Li, K., Ren, W., Wang, W., and Cao, X. (2026).
+\newblock Detecting compressed {AI}-generated images via phase spectrum
+  robustness.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 35427--35436.
+
+\bibitem[Nirob et~al. 2026]{nirob2026handcrafted}
+Nirob, S. M.~H., Rahman, M., Ehsan, S., and Haque, S. (2026).
+\newblock Handcrafted feature fusion for reliable detection of {AI}-generated
+  images.
+\newblock {\em arXiv preprint arXiv:2601.19262}.
+
+\end{thebibliography}
