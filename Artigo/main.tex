@@ -25,59 +25,59 @@ Araranguá, SC
 \maketitle
 
 \begin{abstract}
-This work proposes an experimental study on the robustness of classical computer vision methods for detecting AI-generated images under common digital transformations, such as JPEG compression, cropping, resizing and blurring. Handcrafted descriptors (FFT, HOG and LBP) combined with an SVM classifier will be trained on unmodified CIFAKE samples and evaluated on transformed versions, quantifying performance degradation per transformation and per feature family.
+This work studies how classical computer vision methods behave when detecting AI-generated images that go through common digital transformations, such as JPEG compression, crop, resize and blur. Features FFT, HOG and LBP, with an SVM classifier, will be trained on original CIFAKE images and tested on transformed versions, measuring the drop in accuracy for each transformation and each type of feature.
 \end{abstract}
 
 \begin{resumo}
-Este trabalho propõe um estudo experimental sobre a robustez de métodos clássicos de visão computacional para detecção de imagens geradas por inteligência artificial sob transformações digitais comuns, tais como compressão JPEG, recorte, redimensionamento e desfoque. Descritores manuais (FFT, HOG e LBP), combinados a um classificador SVM, serão treinados em amostras intactas do CIFAKE e avaliados em versões transformadas, quantificando a degradação de desempenho por transformação e por família de features.
+Este trabalho estuda como métodos clássicos de visão computacional se comportam ao detectar imagens geradas por IA depois de transformações digitais comuns, como compressão JPEG, crop, resize e blur. Serão usadas features FFT, HOG e LBP com um classificador SVM, treinados em imagens originais do CIFAKE e testados nas versões transformadas, medindo a queda de acurácia por transformação e por tipo de feature.
 \end{resumo}
 
 %----------------------------------------------------------------------
 \section{Introdução}
 %----------------------------------------------------------------------
 
-O avanço de modelos generativos tornou possível a produção de imagens fotorealistas a partir de texto ou de edição semântica de cenas, reduzindo a capacidade humana de distinguir conteúdos autênticos de sintéticos. Em cenários de aplicação --- por exemplo, circulação de material visual em períodos eleitorais e anúncios imobiliários --- imagens raramente permanecem intactas: compressão, redimensionamento, recortes e filtros alteram o sinal digital e podem atenuar ou destruir artefatos explorados por detectores automáticos.
+Hoje é fácil gerar imagens realistas com inteligência artificial, o que dificulta saber se uma foto é verdadeira ou criada por um modelo. Em situações práticas --- como posts em redes sociais em período eleitoral ou anúncios de imóveis --- essas imagens quase nunca chegam intactas: passam por compressão, corte, redimensionamento e filtros. Essas mudanças podem enfraquecer os sinais que os detectores usam para reconhecer conteúdo sintético.
 
-Nesse contexto, a questão de pesquisa que orienta este trabalho é: \emph{em que medida detectores baseados em features clássicas mantêm desempenho quando imagens sintéticas (ou editadas por IA) sofrem transformações típicas de compartilhamento digital?} Diferentemente de abordagens centradas apenas na classificação binária ``real versus sintética'' em condições ideais, propõe-se um experimento controlado de robustez: o classificador é treinado sobre imagens sem transformação e, em seguida, avaliado sob degradações sistemáticas.
+A pergunta deste trabalho é: \emph{quão bem detectores baseados em features clássicas continuam funcionando quando a imagem sofre transformações típicas da internet?} Em vez de só classificar ``real versus IA'' em imagens limpas, o foco é um teste de robustez: treinar o classificador com imagens sem transformação e depois medir o quanto o desempenho cai com cada alteração.
 
-Evidência preliminar obtida com o detector comercial ZeroGPT\footnote{\url{https://www.zerogpt.com/pt/ai-image-detector}} reforça a relevância do problema. A partir de uma fotografia real de estúdio, aplicou-se edição generativa da cena (preservando a pessoa). O detector atribuiu aproximadamente 99\% de probabilidade de falsidade à imagem editada. Após compressão da mesma amostra sintética, a classificação passou a aproximadamente 97\% de probabilidade de autenticidade, indicando que a manipulação deixou de ser reconhecida (Figura~\ref{fig:zerogpt-editada}).
+Um teste inicial com o site ZeroGPT\footnote{\url{https://www.zerogpt.com/pt/ai-image-detector}} ajuda a ilustrar o problema. Partindo de uma foto real de estúdio, pediu-se a uma IA para mudar a cena (mantendo a pessoa). O ZeroGPT marcou a imagem editada como cerca de 99\% falsa. Depois, apenas comprimindo essa mesma imagem, o resultado passou para cerca de 97\% real --- ou seja, a manipulação deixou de ser detectada (Figura~\ref{fig:zerogpt-editada}).
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.48\textwidth]{../Exemplos/EditadaIA/TestePosTransformacao.png}
 \hfill
 \includegraphics[width=0.48\textwidth]{../Exemplos/EditadaIA/TesteReducaoReso.png}
-\caption{Resultados do ZeroGPT. À esquerda: fotografia real com cena transformada por IA ($\approx$99\% falsa). À direita: mesma imagem após compressão ($\approx$97\% real), evidenciando falha de detecção sob degradação digital.}
+\caption{Resultados do ZeroGPT. À esquerda: foto real com cena alterada por IA ($\approx$99\% falsa). À direita: a mesma imagem após compressão ($\approx$97\% real), mostrando que o detector falhou.}
 \label{fig:zerogpt-editada}
 \end{figure}
 
-A proposta metodológica adota o paradigma clássico de visão computacional --- extração de descritores manuais e classificação com SVM --- por alinhamento ao conteúdo da disciplina e por favorecer interpretabilidade quanto aos domínios de frequência, espaço e textura. Como base de dados, utilizar-se-á o CIFAKE, obtido de repositório público. Como complemento, caso haja disponibilidade, pretende-se analisar, de forma exploratória, como diferentes geradores contemporâneos produzem imagens, a fim de compreender ruídos e padrões associados e, potencialmente, aumentar a robustez da detecção.
+A abordagem usa visão computacional clássica (features extraídas manualmente + SVM), alinhada à disciplina e mais fácil de interpretar nos domínios de frequência, espaço e textura. Os dados principais vêm do CIFAKE, baixado de um repositório público. Se der tempo, também pode ser feito um estudo complementar sobre como diferentes geradores atuais criam imagens, para entender ruídos e padrões e tentar deixar a detecção mais robusta.
 
 %----------------------------------------------------------------------
 \section{Trabalhos Relacionados}
 %----------------------------------------------------------------------
 
-A literatura de detecção de imagens sintéticas combina conjuntos de dados públicos, análise espectral, descritores handcrafted e métodos baseados em representações aprendidas.
+Vários trabalhos já tratam da detecção de imagens geradas por IA, usando datasets públicos, análise em frequência, features manuais ou redes neurais.
 
-Bird e Lotfi~\cite{bird2024cifake} introduziram o CIFAKE, composto por imagens reais do CIFAR-10 e imagens sintéticas geradas por Stable Diffusion, e reportaram acurácia próxima de 93\% com redes convolucionais. O CIFAKE constitui a base experimental desta proposta, por ser balanceado, documentado e já empregado em estudos de features manuais~\cite{nirob2026handcrafted}.
+Bird e Lotfi~\cite{bird2024cifake} criaram o CIFAKE, com imagens reais do CIFAR-10 e imagens sintéticas feitas com Stable Diffusion, e obtiveram cerca de 93\% de acurácia com CNN. Esse dataset será a base deste projeto, por ser balanceado, bem documentado e já usado em estudos com features manuais~\cite{nirob2026handcrafted}.
 
-No domínio da frequência, Frank et al.~\cite{frank2020frequency} demonstraram que imagens produzidas por GANs exibem artefatos espectrais sistemáticos, associados a operações de \emph{upsampling}, o que permite separação eficiente e maior estabilidade perante perturbações como desfoque e recorte. Bammey~\cite{bammey2024synthbuster} estendeu a análise a modelos de difusão (Synthbuster), explorando picos no espectro de Fourier de um residual passa-alta e reportando detecção sob compressão JPEG leve. Tais resultados sustentam a inclusão de descritores espectrais e a avaliação sob JPEG neste trabalho.
+Frank et al.~\cite{frank2020frequency} mostraram que imagens de GANs deixam marcas claras no espectro de frequência, ligadas ao \emph{upsampling}, o que ajuda a separar real de fake e ainda resiste melhor a blur e crop. Bammey~\cite{bammey2024synthbuster} levou essa ideia para modelos de difusão (Synthbuster), olhando picos no espectro de Fourier e conseguindo detectar imagens mesmo com JPEG leve. Por isso faz sentido usar features de frequência e testar compressão JPEG neste trabalho.
 
-Nirob et al.~\cite{nirob2026handcrafted} conduziram avaliação sistemática de descritores handcrafted (incluindo histograma de cores, DCT, HOG, LBP, GLCM e wavelets) sobre o CIFAKE, combinados a classificadores clássicos e a ensembles. A fusão de features apresentou desempenho competitivo, evidenciando a viabilidade de abordagens interpretáveis e computacionalmente leves --- alinhadas à escolha de FFT, HOG e LBP nesta proposta.
+Nirob et al.~\cite{nirob2026handcrafted} testaram várias features manuais no CIFAKE (histograma, DCT, HOG, LBP, GLCM, wavelets) com classificadores clássicos e ensembles. A combinação de features teve bom desempenho, o que reforça o uso de FFT, HOG e LBP aqui.
 
-Choi et al.~\cite{choi2025warpad} apresentaram o WaRPAD, método \emph{training-free} que quantifica a sensibilidade de embeddings auto-supervisionados a perturbações em alta frequência relacionadas a crop/resize. Embora a arquitetura difira da adotada aqui, o trabalho reforça a hipótese de que transformações geométricas e de escala alteram indícios de síntese, o que motiva o protocolo experimental de robustez.
+Choi et al.~\cite{choi2025warpad} propuseram o WaRPAD, um método sem treino específico que mede o quanto embeddings mudam com crop/resize. Mesmo sendo uma técnica diferente da nossa, o trabalho mostra que transformações geométricas atrapalham a detecção --- o mesmo tipo de problema que queremos medir.
 
-Em síntese, a literatura indica: (i)~utilidade de informação espectral e de textura~\cite{frank2020frequency,bammey2024synthbuster,nirob2026handcrafted}; (ii)~necessidade de avaliar transformações realistas~\cite{choi2025warpad,bammey2024synthbuster}. A lacuna explorada por esta proposta consiste em quantificar, sob o paradigma clássico (features + SVM) e sobre o CIFAKE, a degradação de desempenho por transformação e por família de descritores.
+Em resumo: (i)~frequência e textura ajudam na detecção~\cite{frank2020frequency,bammey2024synthbuster,nirob2026handcrafted}; (ii)~é importante testar transformações realistas~\cite{choi2025warpad,bammey2024synthbuster}. O que este trabalho busca é medir, com features clássicas + SVM no CIFAKE, quanto cada transformação e cada tipo de feature perde desempenho.
 
 %----------------------------------------------------------------------
 \section{Desenvolvimento}
 %----------------------------------------------------------------------
 
-Esta seção apresenta a versão prévia do plano metodológico: opções técnicas consideradas, justificativa das escolhas, dados e protocolo de avaliação.
+Esta seção descreve o plano inicial do projeto: técnicas escolhidas, justificativa, dados e forma de avaliação.
 
 \subsection{Objetivos e protocolo}
 
-O protocolo experimental concentra-se na robustez a transformações: treinar o classificador exclusivamente em imagens intactas do CIFAKE e medir a variação de desempenho após transformações controladas, por família de feature. A Figura~\ref{fig:fluxo} resume o fluxo previsto, incluindo um laço de ajuste caso a robustez observada seja insuficiente.
+O experimento principal é simples: treinar o SVM só com imagens originais do CIFAKE e, depois, testar as mesmas imagens após transformações controladas, comparando FFT, HOG e LBP. A Figura~\ref{fig:fluxo} mostra o fluxo. Se o resultado não for bom o bastante, as features ou parâmetros podem ser ajustados.
 
 \begin{figure}[ht]
 \centering
@@ -90,13 +90,13 @@ O protocolo experimental concentra-se na robustez a transformações: treinar o 
   arr/.style={-{Latex}, thick}
 ]
   \node[box, fill=gray!15] (d) {CIFAKE\\real / fake};
-  \node[box, below=of d] (f) {Extração FFT,\\HOG e LBP};
-  \node[box, below=of f] (t) {Treinamento SVM\\(imagens intactas)};
-  \node[box, below=of t] (x) {Transformações\\controladas};
-  \node[box, below=of x] (e) {Avaliação por\\família de feature};
-  \node[dec, below=0.65cm of e] (q) {Robustez\\suficiente?};
-  \node[box, below left=0.75cm and 0.05cm of q, fill=green!12] (ok) {Análise e\\relato};
-  \node[box, below right=0.75cm and 0.05cm of q, fill=orange!15] (aj) {Ajuste de\\descritores};
+  \node[box, below=of d] (f) {Extrair FFT,\\HOG e LBP};
+  \node[box, below=of f] (t) {Treinar SVM\\(imagens originais)};
+  \node[box, below=of t] (x) {Aplicar\\transformações};
+  \node[box, below=of x] (e) {Medir acurácia\\por feature};
+  \node[dec, below=0.65cm of e] (q) {Resultado\\aceitável?};
+  \node[box, below left=0.75cm and 0.05cm of q, fill=green!12] (ok) {Analisar e\\relatar};
+  \node[box, below right=0.75cm and 0.05cm of q, fill=orange!15] (aj) {Ajustar\\features};
 
   \draw[arr] (d) -- (f);
   \draw[arr] (f) -- (t);
@@ -107,44 +107,44 @@ O protocolo experimental concentra-se na robustez a transformações: treinar o 
   \draw[arr] (q) -- node[right, font=\scriptsize] {não} (aj);
   \draw[arr] (aj.east) -- ++(0.5,0) |- (f.east);
 \end{tikzpicture}
-\caption{Fluxograma metodológico proposto sobre o CIFAKE: treinamento em imagens intactas, avaliação sob transformações e realimentação em caso de robustez insuficiente.}
+\caption{Fluxograma do projeto no CIFAKE: treino com imagens originais, teste após transformações e ajuste se a robustez for baixa.}
 \label{fig:fluxo}
 \end{figure}
 
 \subsection{Opções de técnicas e justificativa}
 
-Foram consideradas três famílias de descritores, cobrindo os domínios usuais de processamento de imagens e com respaldo empírico na detecção de conteúdo sintético:
+Foram escolhidas três tipos de features, cobrindo os domínios da disciplina e já usados na literatura de detecção:
 
 \begin{itemize}
-\item \textbf{Frequência (FFT / espectro de magnitude):} motivada por artefatos de geração e pela sensibilidade da compressão JPEG ao conteúdo espectral~\cite{frank2020frequency,bammey2024synthbuster}.
-\item \textbf{Espaço (HOG):} captura distribuição de gradientes e estrutura local, já empregada em avaliações handcrafted sobre o CIFAKE~\cite{nirob2026handcrafted}.
-\item \textbf{Textura (LBP):} descreve padrões locais de intensidade; igualmente reportada como descritor competitivo em~\cite{nirob2026handcrafted}.
+\item \textbf{Frequência (FFT):} pega padrões no espectro; útil porque geração por IA e JPEG deixam marcas nessa área~\cite{frank2020frequency,bammey2024synthbuster}.
+\item \textbf{Espaço (HOG):} descreve bordas e gradientes locais; já foi testado no CIFAKE~\cite{nirob2026handcrafted}.
+\item \textbf{Textura (LBP):} descreve padrões locais de intensidade; também teve bons resultados em~\cite{nirob2026handcrafted}.
 \end{itemize}
 
-Como alternativas de classificação, contemplaram-se SVM, $k$-NN e ensembles (p.\ ex., LightGBM, conforme~\cite{nirob2026handcrafted}). Optou-se pelo \textbf{SVM} na etapa principal por: (i)~adequação a vetores de features de dimensão moderada; (ii)~uso consolidado em reconhecimento de padrões; (iii)~interpretabilidade relativa frente a redes profundas. Ensembles e $k$-NN permanecem como extensões opcionais para comparação.
+Como classificador, foram consideradas as opções SVM, $k$-NN e ensembles (como LightGBM~\cite{nirob2026handcrafted}). A escolha principal é o \textbf{SVM}, porque funciona bem com vetores de features, é comum em reconhecimento de padrões e é mais fácil de explicar do que uma rede neural. $k$-NN e ensembles ficam como opções extras, se houver tempo.
 
-Em relação a abordagens baseadas apenas em aprendizado profundo, priorizou-se a visão clássica nesta fase, tanto por alinhamento curricular quanto pela possibilidade de relacionar explicitamente a degradação observada a cada domínio de feature.
+Redes neurais profundas não são o foco agora: a ideia é seguir a linha clássica da disciplina e conseguir relacionar a queda de desempenho a cada tipo de feature.
 
 \subsection{Dados}
 
-Utilizar-se-á o dataset CIFAKE~\cite{bird2024cifake}, também empregado por~\cite{nirob2026handcrafted}: aproximadamente 120\,000 imagens $32{\times}32$, balanceadas entre reais (CIFAR-10) e sintéticas (Stable Diffusion), com partição treino/teste. Os dados serão obtidos de repositório público (p.\ ex., Kaggle), sem coleta própria nesta etapa. Complementarmente, se houver condições, poderão ser inspecionadas amostras de geradores atuais (p.\ ex., ChatGPT/DALL$\cdot$E, Midjourney, Gemini/Nano Banana) apenas para caracterizar diferenças de geração e apoiar a robustez --- sem substituir o CIFAKE como base experimental.
+Será usado o dataset CIFAKE~\cite{bird2024cifake}, também utilizado por~\cite{nirob2026handcrafted}: cerca de 120\,000 imagens $32{\times}32$, metade reais (CIFAR-10) e metade sintéticas (Stable Diffusion), já separadas em treino e teste. Os dados serão baixados de repositório público (por exemplo, Kaggle), sem coleta própria nesta etapa. Se der, podem ser olhadas algumas imagens de geradores atuais (ChatGPT/DALL$\cdot$E, Midjourney, Gemini/Nano Banana) só para entender diferenças de geração e ajudar na robustez --- sem substituir o CIFAKE.
 
-A Figura~\ref{fig:zerogpt-editada} não integra o protocolo formal de métricas: serve apenas como motivação empírica do problema de robustez sob compressão.
+A Figura~\ref{fig:zerogpt-editada} não entra no cálculo das métricas: serve só para motivar o problema da compressão.
 
 \subsection{Transformações}
 
-As transformações selecionadas simulam operações frequentes em redes sociais e pipelines de compartilhamento, em coerência com~\cite{bammey2024synthbuster,choi2025warpad}:
+As transformações escolhidas imitam o que acontece quando uma imagem circula na internet~\cite{bammey2024synthbuster,choi2025warpad}:
 
 \begin{itemize}
-\item compressão JPEG (fatores nominais 90\%, 70\% e 50\%);
-\item geometria: redimensionamento e recorte (10\%, 25\% e 40\%);
-\item filtragem: desfoque gaussiano (e, em extensão, nitidez/ajuste de brilho);
-\item pipeline composto: recorte $\rightarrow$ redimensionamento $\rightarrow$ JPEG.
+\item compressão JPEG (90\%, 70\% e 50\%);
+\item geometria: resize e crop (10\%, 25\% e 40\%);
+\item filtros: blur (e, se houver tempo, sharpen/brilho);
+\item combinação: crop $\rightarrow$ resize $\rightarrow$ JPEG.
 \end{itemize}
 
 \subsection{Avaliação}
 
-Reportar-se-ão acurácia e, quando pertinente, precisão e \emph{recall}, no conjunto de teste do CIFAKE sem transformação (\emph{baseline}) e após cada transformação, estratificando FFT, HOG e LBP. Espera-se identificar quais indícios visuais se degradam sob cada transformação e quais famílias de features apresentam maior estabilidade~\cite{frank2020frequency,nirob2026handcrafted,bammey2024synthbuster}.
+Serão medidas a acurácia e, se fizer sentido, precisão e \emph{recall}, no teste sem transformação (\emph{baseline}) e depois de cada transformação, separando FFT, HOG e LBP. O objetivo é ver quais padrões somem com cada mudança e quais features aguentam melhor~\cite{frank2020frequency,nirob2026handcrafted,bammey2024synthbuster}.
 
 \bibliographystyle{sbc}
 \bibliography{referencias}
