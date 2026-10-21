@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progresso — Detecção de Imagens Sintéticas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1976d2;
+      --primary-dark: #0d47a1;
+      --accent: #ff7043;
+      --surface: #ffffff;
+      --bg: #eceff1;
+      --text: #263238;
+      --muted: #607d8b;
+      --success: #2e7d32;
+      --danger: #c62828;
+      --warn: #ef6c00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .deck { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 64px;
+      background: var(--surface);
+      border-bottom: 4px solid var(--primary);
+    }
+
+    .slide:nth-child(even) { background: #f5f7fa; }
+
+    .content { max-width: 1180px; width: 100%; }
+
+    h1 { font-size: 2.6rem; font-weight: 700; color: var(--primary-dark); line-height: 1.2; }
+    h2 { font-size: 2rem; font-weight: 500; color: var(--primary); margin-bottom: 24px; }
+    h3 { font-size: 1.1rem; font-weight: 500; color: var(--primary-dark); margin-bottom: 8px; }
+
+    .subtitle { font-size: 1.25rem; color: var(--muted); margin-top: 12px; }
+    .tag { display: inline-block; background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; margin-top: 20px; }
+    .tag.accent { background: var(--accent); }
+
+    ul { margin: 16px 0 0 24px; line-height: 1.7; }
+    li { margin-bottom: 6px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      border-left: 4px solid var(--primary);
+    }
+
+    .card.accent { border-left-color: var(--accent); }
+    .card.success { border-left-color: var(--success); }
+    .card.warn { border-left-color: var(--warn); }
+    .card.danger { border-left-color: var(--danger); }
+
+    .quote {
+      font-size: 1.35rem;
+      font-style: italic;
+      color: var(--primary-dark);
+      border-left: 5px solid var(--accent);
+      padding: 16px 24px;
+      background: #fff3e0;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.95rem; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #cfd8dc; }
+    th { background: var(--primary); color: white; font-weight: 500; }
+    tr:nth-child(even) { background: #f5f7fa; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .img-box {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      background: #fff;
+    }
+
+    .img-box img { width: 100%; display: block; object-fit: contain; max-height: 420px; }
+
+    .caption { font-size: 0.85rem; color: var(--muted); margin-top: 8px; text-align: center; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .badge-danger { background: #ffcdd2; color: var(--danger); }
+    .badge-warn { background: #ffe0b2; color: var(--warn); }
+    .badge-success { background: #c8e6c9; color: var(--success); }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .flow-step {
+      background: var(--primary);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .flow-step.done { background: var(--success); }
+    .flow-step.next { background: var(--accent); }
+
+    .flow-arrow { color: var(--accent); font-size: 1.4rem; font-weight: 700; }
+
+    .fc {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .fc-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .fc-box {
+      background: var(--primary);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-align: center;
+      min-width: 150px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    .fc-box small { display: block; font-weight: 400; font-size: 0.75rem; opacity: .9; margin-top: 2px; }
+    .fc-box.gray { background: #546e7a; }
+    .fc-box.green { background: var(--success); }
+    .fc-box.orange { background: var(--accent); }
+    .fc-box.warn { background: var(--warn); }
+    .fc-box.outline {
+      background: white;
+      color: var(--primary-dark);
+      border: 2px solid var(--primary);
+    }
+    .fc-v {
+      color: var(--accent);
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .fc-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .fc-col {
+      background: #eceff1;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .fc-col h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 10px;
+    }
+    .mini { font-size: 0.82rem; min-width: 0; width: 100%; margin: 4px 0; }
+
+    .footer-note { position: fixed; bottom: 12px; right: 20px; font-size: 0.75rem; color: var(--muted); }
+    .nav-hint { position: fixed; bottom: 12px; left: 20px; font-size: 0.75rem; color: var(--muted); }
+
+    .title-slide { text-align: center; }
+    .title-slide h1 { font-size: 3rem; }
+    .authors { margin-top: 32px; font-size: 1.1rem; color: var(--muted); }
+
+    .kpi {
+      text-align: center;
+      padding: 20px 12px;
+    }
+    .kpi .value {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      line-height: 1.1;
+    }
+    .kpi .value.success { color: var(--success); }
+    .kpi .value.warn { color: var(--warn); }
+    .kpi .value.danger { color: var(--danger); }
+    .kpi .label { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 88px;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0;
+    }
+    .bar-label { font-size: 0.9rem; font-weight: 500; }
+    .bar-track {
+      height: 22px;
+      background: #eceff1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: var(--primary);
+    }
+    .bar-fill.success { background: var(--success); }
+    .bar-fill.warn { background: var(--warn); }
+    .bar-fill.danger { background: var(--danger); }
+    .bar-fill.accent { background: var(--accent); }
+    .bar-val { font-size: 0.9rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .mock-app {
+      background: #eceff1;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+    .mock-bar {
+      background: var(--primary-dark);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 8px 8px 0 0;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .mock-body {
+      background: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+    }
+    .mock-btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .prob-track { height: 16px; background: #eceff1; border-radius: 8px; overflow: hidden; margin-top: 8px; }
+    .prob-fill { height: 100%; width: 87%; background: var(--danger); }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .slide { padding: 32px 24px; }
+      h1 { font-size: 2rem; }
+      .title-slide h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="footer-note">Visão Computacional · UFSC 2026.2 · Progresso</div>
+
+  <div class="deck">
+
+    <!-- 1 — Capa -->
+    <section class="slide">
+      <div class="content title-slide">
+        <span class="tag">Progresso</span>
+        <h1>Detecção de Imagens Sintéticas após Transformações </h1> <h2>Detector clássico a 92%</h2>
+        <p class="authors">Nathália G. Ribas · Igor M. da Rosa</p>
+      </div>
+    </section>
+
+    <!-- 3 — O que já está pronto -->
+    <section class="slide">
+      <div class="content">
+        <h2>O que já está pronto</h2>
+        <div class="flow">
+          <div class="flow-step done">CIFAKE</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step done">FFT · HOG · LBP</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step done">SVM RBF</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step done">9 transformações</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step next">App Python</div>
+        </div>
+        <div class="grid-2" style="margin-top:28px">
+          <div class="card success">
+            <h3>Já medido</h3>
+            <ul>
+              <li>Baseline em imagens originais</li>
+              <li>Queda de acurácia por transformação</li>
+              <li>Modelos salvos (<code>.pkl</code>)</li>
+            </ul>
+          </div>
+          <div class="card accent">
+            <h3>Falta (objetivo)</h3>
+            <ul>
+              <li>App: escolher uma foto</li>
+              <li>Mostrar chance de ser IA</li>
+              <li>Testar a mesma foto transformada</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 — Robustez FUSION -->
+    <section class="slide">
+      <div class="content">
+        <h2>Precisão depois das transformações</h2>
+        <p style="margin-bottom:8px">Mesmo SVM da fusão (92%). Só o teste muda.</p>
+        <div class="bar-row">
+          <span class="bar-label">Original</span>
+          <div class="bar-track"><div class="bar-fill success" style="width:92.04%"></div></div>
+          <span class="bar-val">92,0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">JPEG 90</span>
+          <div class="bar-track"><div class="bar-fill success" style="width:91.53%"></div></div>
+          <span class="bar-val">91,5%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">JPEG 70</span>
+          <div class="bar-track"><div class="bar-fill success" style="width:91.53%"></div></div>
+          <span class="bar-val">91,5%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">JPEG 50</span>
+          <div class="bar-track"><div class="bar-fill warn" style="width:86.11%"></div></div>
+          <span class="bar-val">86,1%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Crop 10%</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:62.41%"></div></div>
+          <span class="bar-val">62,4%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Pipeline</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:55.18%"></div></div>
+          <span class="bar-val">55,2%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Blur</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:53.71%"></div></div>
+          <span class="bar-val">53,7%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 — Gráfico real -->
+    <section class="slide">
+      <div class="content">
+        <h2>Acurácia por transformação</h2>
+        <div class="img-box">
+          <img src="../Cod/results/acuracia_por_transformacao.png" alt="Acurácia por transformação e família de feature">
+        </div>
+        <p class="caption">Linhas pontilhadas = baseline. JPEG quase não mexe. Crop / blur / pipeline caem forte.</p>
+      </div>
+    </section>
+    
+    <!-- 10 — Aprendizados -->
+    <section class="slide">
+      <div class="content">
+        <h2>O que isso significa</h2>
+        <div class="grid-3">
+          <div class="card success">
+            <h3>1. No original, funciona</h3>
+            <p>92% é um detector útil para foto “limpa”.</p>
+          </div>
+          <div class="card warn">
+            <h3>2. JPEG não é o vilão</h3>
+            <p>Qualidade 90 e 70: ainda 91,5%.</p>
+          </div>
+          <div class="card danger">
+            <h3>3. Recorte e blur são</h3>
+            <p>Screenshot + crop + filtro: o sinal some.</p>
+          </div>
+        </div>
+    </section>
+
+    <!-- 11 — Objetivo do app -->
+    <section class="slide">
+      <div class="content">
+        <h2>Objetivo agora: um app</h2>
+        <div class="grid-2">
+          <div>
+            <ul>
+              <li>Programa em <strong>Python</strong></li>
+              <li>Você <strong>escolhe uma imagem</strong></li>
+              <li>O SVM responde: <strong>chance de ser IA</strong></li>
+              <li>Dá para aplicar JPEG / crop / blur e ver se a nota muda</li>
+            </ul>
+            <div class="card accent" style="margin-top:20px">
+              <h3>Por que isso fecha o trabalho</h3>
+              <p style="margin-top:8px;line-height:1.6">Tira o experimento do notebook e mostra, ao vivo, o que medimos: 92% no original e a queda depois das transformações.</p>
+            </div>
+          </div>
+          <div class="mock-app">
+            <div class="mock-bar">Detector de imagem sintética</div>
+            <div class="mock-body">
+              <div class="mock-btn">Selecionar imagem…</div>
+              <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">foto_whatsapp.jpg</p>
+              <h3>Chance de ser IA</h3>
+              <p style="font-size:2rem;font-weight:700;color:var(--danger);margin:8px 0 4px">87%</p>
+              <div class="prob-track"><div class="prob-fill"></div></div>
+              <p class="caption" style="text-align:left;margin-top:16px">
+                Modelo: SVM RBF (fusão) · treinado no CIFAKE
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 — Fechamento -->
+    <section class="slide">
+      <div class="content title-slide">
+        <h2 style="color:var(--primary-dark);margin-bottom:24px">Em uma frase</h2>
+        <div class="grid-3" style="text-align:left">
+          <div class="card success"><h3>Hoje</h3><p>SVM clássico acerta <strong>92%</strong> no original.</p></div>
+          <div class="card warn"><h3>Limite</h3><p>Crop e blur derrubam para ~<strong>54%</strong>.</p></div>
+          <div class="card accent"><h3>Próximo</h3><p>App: foto → chance de ser IA.<br> Tentar melhorar a precisão com Crop e blur</p></div>
+        </div>
+        <p style="margin-top:40px;font-size:1.3rem;color:var(--primary-dark)">Perguntas?</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
