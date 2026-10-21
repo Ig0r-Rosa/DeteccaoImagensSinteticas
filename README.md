@@ -8,6 +8,10 @@ Trabalho final da disciplina **INE410159 / TRV410001 — Visão Computacional** 
 
 Avaliar a **robustez** de detectores de imagens geradas por IA quando essas imagens passam por transformações comuns de compartilhamento digital (compressão, crop, resize, screenshot, filtros etc.).
 
+## Documentação do código
+
+Uma explicação didática, célula por célula, das técnicas, finalidades, limitações e formas de aumentar a acurácia está em [`Cod/EXPLICACAO_MAIN.md`](Cod/EXPLICACAO_MAIN.md).
+
 ## Pergunta de pesquisa
 
 > Quão robustos são detectores de imagens sintéticas quando a imagem sofre transformações típicas de circulação na internet?
