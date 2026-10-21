@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparação Artigo 01 → 02</title>
+  <style>
+    :root {
+      --add-bg: #d1f7d6;
+      --add-line: #aceebb;
+      --del-bg: #ffd7d5;
+      --del-line: #ffc1bc;
+      --hunk-bg: #ddf4ff;
+      --file-bg: #f6f8fa;
+      --text: #1f2328;
+      --muted: #656d76;
+      --border: #d0d7de;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    header {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 28px 32px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #f6f8fa;
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; }
+    .sub { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+    .legend {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 0.9rem;
+    }
+    .pill { padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+    .pill.add { background: var(--add-bg); }
+    .pill.del { background: var(--del-bg); }
+    .pill.same { background: #eaeef2; }
+    .summary {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 24px 32px;
+      max-width: 1100px;
+    }
+    .summary h2 { font-size: 1.15rem; margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f6f8fa; }
+    .tag-add { background: var(--add-bg); padding: 1px 6px; border-radius: 4px; }
+    .tag-chg { background: #fff8c5; padding: 1px 6px; border-radius: 4px; }
+    .wrap { padding: 0 16px 40px; }
+    h2 {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 1.05rem;
+      margin: 24px 8px 8px;
+    }
+    .diff {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: auto;
+    }
+    .line { display: grid; grid-template-columns: 52px 52px 18px 1fr; }
+    .line:hover { filter: brightness(0.98); }
+    .gutter {
+      color: var(--muted);
+      text-align: right;
+      padding: 0 8px;
+      user-select: none;
+      border-right: 1px solid var(--border);
+      background: #f6f8fa;
+    }
+    .sign { text-align: center; user-select: none; }
+    .code { white-space: pre-wrap; word-break: break-word; padding: 0 10px; }
+    .add { background: var(--add-bg); }
+    .add .gutter { background: var(--add-line); }
+    .add .sign { color: #1a7f37; }
+    .del { background: var(--del-bg); }
+    .del .gutter { background: var(--del-line); }
+    .del .sign { color: #cf222e; }
+    .hunk { background: var(--hunk-bg); color: #0550ae; }
+    .hunk .gutter { background: var(--hunk-bg); border-color: #c6e2f5; }
+    .file { background: var(--file-bg); font-weight: 600; }
+    .note {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 8px 32px 24px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>O que mudou: Artigo 01 → 02</h1>
+    <p class="sub">Comparação no estilo git, com o Artigo 02 na versão atual (tom de artigo, Metodologia). Arquivos originais do 01 não foram alterados.</p>
+    <div class="legend">
+      <span class="pill add">+ 103 linhas novas no .tex</span>
+      <span class="pill del">− 51 linhas removidas no .tex</span>
+      <span class="pill same">101 linhas iguais no .tex</span>
+      <span class="pill add">+ 47 linhas novas no .bib</span>
+    </div>
+  </header>
+
+  <section class="summary">
+    <h2>Resumo das mudanças</h2>
+    <table>
+      <tr><th>Onde</th><th>Tipo</th><th>O que aconteceu</th></tr>
+      <tr><td>Resumo / Abstract</td><td><span class="tag-chg">alterado</span></td><td>Cita a revisão de descritores e classificadores e o SVM RBF, em voz impessoal (sem “adotamos”).</td></tr>
+      <tr><td>Introdução</td><td><span class="tag-chg">alterado</span></td><td>Complementa a proposta inicial e aponta Fundamentação + Desenvolvimento.</td></tr>
+      <tr><td>Trabalhos relacionados</td><td><span class="tag-chg">quase igual</span></td><td>Ajustes de redação; “será a base” → “é a base”.</td></tr>
+      <tr><td>Fundamentação Teórica</td><td><span class="tag-add">seção nova</span></td><td>Técnicas estudadas: FFT, HOG, LBP, GLCM, SVM, k-NN, CNN.</td></tr>
+      <tr><td>Desenvolvimento</td><td><span class="tag-chg">reescrito</span></td><td>Justificativa da técnica → perspectiva de uso no problema → <strong>Metodologia</strong> (não mais “escolhas de implementação”).</td></tr>
+      <tr><td>Fluxograma</td><td><span class="tag-chg">detalhe</span></td><td>“Treinar SVM” → “Treinar SVM RBF”.</td></tr>
+      <tr><td>Bibliografia</td><td><span class="tag-add">5 refs novas</span></td><td>Gonzalez, Dalal (HOG), Ojala (LBP), Cortes (SVM), Cover (k-NN).</td></tr>
+    </table>
+  </section>
+
+  <p class="note">Verde = entrou no Artigo 02. Vermelho = saiu do Artigo 01. Cinza = igual nos dois.</p>
+  <div class="wrap">
+    <h2>main.tex → entrega02.tex</h2>
+<div class="diff">
+<div class="line file"><span class="gutter"></span><span class="gutter"></span><span class="code">--- Artigo 01 — main.tex</span></div>
+<div class="line file"><span class="gutter"></span><span class="gutter"></span><span class="code">+++ Artigo 02 — entrega02.tex</span></div>
+<div class="line hunk"><span class="gutter"></span><span class="gutter"></span><span class="code">@@ -25,11 +25,11 @@</span></div>
+<div class="line ctx"><span class="gutter">25</span><span class="gutter">25</span><span class="sign"> </span><span class="code">\maketitle</span></div>
+<div class="line ctx"><span class="gutter">26</span><span class="gutter">26</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">27</span><span class="gutter">27</span><span class="sign"> </span><span class="code">\begin{abstract}</span></div>
+<div class="line del"><span class="gutter">28</span><span class="gutter"></span><span class="sign">−</span><span class="code">This work studies how classical computer vision methods behave when detecting AI-generated images that go through common digital transformations, such as JPEG compression, crop, resize and blur. Features FFT, HOG and LBP, with an SVM classifier, will be trained on original CIFAKE images and tested on transformed versions, measuring the drop in accuracy for each transformation and each type of feature.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">28</span><span class="sign">+</span><span class="code">This work studies how classical computer vision methods behave when detecting AI-generated images that go through common digital transformations, such as JPEG compression, crop, resize and blur. Frequency, spatial and texture descriptors (FFT, HOG and LBP) are reviewed, together with SVM, $k$-NN and convolutional networks. An RBF SVM is then trained on original CIFAKE images and evaluated on transformed versions, measuring the drop in accuracy for each transformation and each type of feature.</span></div>
+<div class="line ctx"><span class="gutter">29</span><span class="gutter">29</span><span class="sign"> </span><span class="code">\end{abstract}</span></div>
+<div class="line ctx"><span class="gutter">30</span><span class="gutter">30</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">31</span><span class="gutter">31</span><span class="sign"> </span><span class="code">\begin{resumo}</span></div>
+<div class="line del"><span class="gutter">32</span><span class="gutter"></span><span class="sign">−</span><span class="code">Este trabalho estuda como métodos clássicos de visão computacional se comportam ao detectar imagens geradas por IA depois de transformações digitais comuns, como compressão JPEG, crop, resize e blur. Serão usadas features FFT, HOG e LBP com um classificador SVM, treinados em imagens originais do CIFAKE e testados nas versões transformadas, medindo a queda de acurácia por transformação e por tipo de feature.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">32</span><span class="sign">+</span><span class="code">Este trabalho estuda como métodos clássicos de visão computacional se comportam ao detectar imagens geradas por IA depois de transformações digitais comuns, como compressão JPEG, crop, resize e blur. Revisam-se descritores de frequência, espaço e textura (FFT, HOG e LBP) e os classificadores SVM, $k$-NN e redes convolucionais. Em seguida, um SVM com kernel RBF é treinado em imagens originais do CIFAKE e avaliado nas versões transformadas, medindo-se a queda de acurácia por transformação e por tipo de feature.</span></div>
+<div class="line ctx"><span class="gutter">33</span><span class="gutter">33</span><span class="sign"> </span><span class="code">\end{resumo}</span></div>
+<div class="line ctx"><span class="gutter">34</span><span class="gutter">34</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">35</span><span class="gutter">35</span><span class="sign"> </span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line hunk"><span class="gutter"></span><span class="gutter"></span><span class="code">@@ -51,7 +51,7 @@</span></div>
+<div class="line ctx"><span class="gutter">51</span><span class="gutter">51</span><span class="sign"> </span><span class="code">\label{fig:zerogpt-editada}</span></div>
+<div class="line ctx"><span class="gutter">52</span><span class="gutter">52</span><span class="sign"> </span><span class="code">\end{figure}</span></div>
+<div class="line ctx"><span class="gutter">53</span><span class="gutter">53</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line del"><span class="gutter">54</span><span class="gutter"></span><span class="sign">−</span><span class="code">A abordagem usa visão computacional clássica (features extraídas manualmente + SVM), alinhada à disciplina e mais fácil de interpretar nos domínios de frequência, espaço e textura. Os dados principais vêm do CIFAKE, baixado de um repositório público. Se der tempo, também pode ser feito um estudo complementar sobre como diferentes geradores atuais criam imagens, para entender ruídos e padrões e tentar deixar a detecção mais robusta.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">54</span><span class="sign">+</span><span class="code">Este artigo complementa a proposta inicial. Além do problema e da literatura, descreve as técnicas e os algoritmos estudados (Seção~\ref{sec:fundamentacao}) e, na Seção~\ref{sec:desenvolvimento}, a justificativa da técnica selecionada, a perspectiva de uso no problema de robustez e a metodologia experimental.</span></div>
+<div class="line ctx"><span class="gutter">55</span><span class="gutter">55</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">56</span><span class="gutter">56</span><span class="sign"> </span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line ctx"><span class="gutter">57</span><span class="gutter">57</span><span class="sign"> </span><span class="code">\section{Trabalhos Relacionados}</span></div>
+<div class="line hunk"><span class="gutter"></span><span class="gutter"></span><span class="code">@@ -59,25 +59,74 @@</span></div>
+<div class="line ctx"><span class="gutter">59</span><span class="gutter">59</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">60</span><span class="gutter">60</span><span class="sign"> </span><span class="code">Vários trabalhos já tratam da detecção de imagens geradas por IA, usando datasets públicos, análise em frequência, features manuais ou redes neurais.</span></div>
+<div class="line ctx"><span class="gutter">61</span><span class="gutter">61</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line del"><span class="gutter">62</span><span class="gutter"></span><span class="sign">−</span><span class="code">Bird e Lotfi~\cite{bird2024cifake} criaram o CIFAKE, com imagens reais do CIFAR-10 e imagens sintéticas feitas com Stable Diffusion, e obtiveram cerca de 93\% de acurácia com CNN. Esse dataset será a base deste projeto, por ser balanceado, bem documentado e já usado em estudos com features manuais~\cite{nirob2026handcrafted}.</span></div>
+<div class="line del"><span class="gutter">63</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">64</span><span class="gutter"></span><span class="sign">−</span><span class="code">Frank et al.~\cite{frank2020frequency} mostraram que imagens de GANs deixam marcas claras no espectro de frequência, ligadas ao \emph{upsampling}, o que ajuda a separar real de fake e ainda resiste melhor a blur e crop. Bammey~\cite{bammey2024synthbuster} levou essa ideia para modelos de difusão (Synthbuster), olhando picos no espectro de Fourier e conseguindo detectar imagens mesmo com JPEG leve. Por isso faz sentido usar features de frequência e testar compressão JPEG neste trabalho.</span></div>
+<div class="line del"><span class="gutter">65</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">66</span><span class="gutter"></span><span class="sign">−</span><span class="code">Nirob et al.~\cite{nirob2026handcrafted} testaram várias features manuais no CIFAKE (histograma, DCT, HOG, LBP, GLCM, wavelets) com classificadores clássicos e ensembles. A combinação de features teve bom desempenho, o que reforça o uso de FFT, HOG e LBP aqui.</span></div>
+<div class="line del"><span class="gutter">67</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">68</span><span class="gutter"></span><span class="sign">−</span><span class="code">Choi et al.~\cite{choi2025warpad} propuseram o WaRPAD, um método sem treino específico que mede o quanto embeddings mudam com crop/resize. Mesmo sendo uma técnica diferente da nossa, o trabalho mostra que transformações geométricas atrapalham a detecção --- o mesmo tipo de problema que queremos medir.</span></div>
+<div class="line del"><span class="gutter">69</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">70</span><span class="gutter"></span><span class="sign">−</span><span class="code">Em resumo: (i)~frequência e textura ajudam na detecção~\cite{frank2020frequency,bammey2024synthbuster,nirob2026handcrafted}; (ii)~é importante testar transformações realistas~\cite{choi2025warpad,bammey2024synthbuster}. O que este trabalho busca é medir, com features clássicas + SVM no CIFAKE, quanto cada transformação e cada tipo de feature perde desempenho.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">62</span><span class="sign">+</span><span class="code">Bird e Lotfi~\cite{bird2024cifake} criaram o CIFAKE, com imagens reais do CIFAR-10 e imagens sintéticas feitas com Stable Diffusion, e obtiveram cerca de 93\% de acurácia com CNN. Esse dataset é a base deste projeto, por ser balanceado, bem documentado e já usado em estudos com features manuais~\cite{nirob2026handcrafted}.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">63</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">64</span><span class="sign">+</span><span class="code">Frank et al.~\cite{frank2020frequency} mostraram que imagens de GANs deixam marcas claras no espectro de frequência, ligadas ao \emph{upsampling}, o que ajuda a separar real de fake e ainda resiste melhor a blur e crop. Bammey~\cite{bammey2024synthbuster} levou essa ideia para modelos de difusão (Synthbuster), olhando picos no espectro de Fourier e conseguindo detectar imagens mesmo com JPEG leve. Por isso faz sentido empregar features de frequência e testar compressão JPEG neste trabalho.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">65</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">66</span><span class="sign">+</span><span class="code">Nirob et al.~\cite{nirob2026handcrafted} testaram várias features manuais no CIFAKE (histograma, DCT, HOG, LBP, GLCM, wavelets) com classificadores clássicos e ensembles. A combinação de features teve bom desempenho, o que reforça o uso de FFT, HOG e LBP.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">67</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">68</span><span class="sign">+</span><span class="code">Choi et al.~\cite{choi2025warpad} propuseram o WaRPAD, um método sem treino específico que mede o quanto embeddings mudam com crop/resize. Embora a técnica seja distinta da abordada aqui, o trabalho mostra que transformações geométricas prejudicam a detecção --- o mesmo tipo de degradação que se pretende medir.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">69</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">70</span><span class="sign">+</span><span class="code">Em resumo: (i)~frequência e textura ajudam na detecção~\cite{frank2020frequency,bammey2024synthbuster,nirob2026handcrafted}; (ii)~é importante testar transformações realistas~\cite{choi2025warpad,bammey2024synthbuster}. O objetivo é medir, com features clássicas e SVM no CIFAKE, quanto cada transformação e cada tipo de feature perde desempenho.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">71</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">72</span><span class="sign">+</span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">73</span><span class="sign">+</span><span class="code">\section{Fundamentação Teórica}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">74</span><span class="sign">+</span><span class="code">\label{sec:fundamentacao}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">75</span><span class="sign">+</span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">76</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">77</span><span class="sign">+</span><span class="code">Esta seção descreve as técnicas e os algoritmos estudados para o problema. A justificativa da escolha de uma delas e a perspectiva de utilização no projeto constam da Seção~\ref{sec:desenvolvimento}.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">78</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">79</span><span class="sign">+</span><span class="code">\subsection{Visão clássica e aprendizado profundo}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">80</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">81</span><span class="sign">+</span><span class="code">Há dois caminhos principais para decidir se uma imagem é real ou gerada por IA.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">82</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">83</span><span class="sign">+</span><span class="code">Na \emph{visão clássica}, a imagem é resumida por descritores calculados explicitamente (frequência, bordas, textura) e um classificador --- SVM ou $k$-NN --- aprende a fronteira entre as classes~\cite{gonzalez2018,nirob2026handcrafted}. Cada componente do vetor tem interpretação visual, o que permite relacionar uma transformação (JPEG, crop, blur) à degradação de um domínio específico.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">84</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">85</span><span class="sign">+</span><span class="code">No \emph{aprendizado profundo}, uma rede convolucional (CNN) aprende os padrões internamente. No CIFAKE, esse tipo de modelo atinge cerca de 93\% de acurácia~\cite{bird2024cifake}. A contrapartida é a menor transparência: torna-se mais difícil associar a queda de desempenho ao domínio de valor, de espaço ou de frequência.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">86</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">87</span><span class="sign">+</span><span class="code">Como o problema em estudo é de \emph{robustez interpretável} --- não apenas classificar, mas indicar \emph{qual padrão se perde} após cada transformação --- as duas famílias foram consideradas. A via clássica permanece como eixo do projeto.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">88</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">89</span><span class="sign">+</span><span class="code">\subsection{Domínio da frequência: FFT}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">90</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">91</span><span class="sign">+</span><span class="code">Uma imagem pode ser vista como soma de ondas de diferentes frequências~\cite{gonzalez2018}. A Transformada Rápida de Fourier (FFT) decompõe essa soma. O espectro de magnitude indica a contribuição de cada frequência: o centro concentra variações suaves (baixa frequência) e as bordas, detalhes e ruído (alta frequência).</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">92</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">93</span><span class="sign">+</span><span class="code">Na detecção de conteúdo sintético, esse domínio é relevante porque o processo de geração --- em especial o \emph{upsampling} de GANs e de modelos de difusão --- deixa marcas periódicas no espectro~\cite{frank2020frequency,bammey2024synthbuster}. A compressão JPEG também atua em frequência, ao descartar coeficientes de alta frequência. A FFT é, portanto, candidata tanto à detecção quanto à análise do efeito do JPEG.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">94</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">95</span><span class="sign">+</span><span class="code">Operacionalmente, aplica-se a FFT 2D à imagem em escala de cinza, desloca-se o espectro para centralizar as baixas frequências, toma-se a magnitude em escala logarítmica e reduz-se o mapa 2D a um vetor 1D por média radial em anéis de frequência. Esse vetor é o descritor apresentado ao classificador.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">96</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">97</span><span class="sign">+</span><span class="code">\subsection{Domínio do espaço: HOG}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">98</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">99</span><span class="sign">+</span><span class="code">O Histograma de Gradientes Orientados (HOG) descreve a forma local da imagem~\cite{dalal2005hog}. Em cada região, mede-se a orientação das bordas (horizontal, vertical, diagonal) e acumulam-se essas direções em um histograma. A concatenação dos histogramas das células resume o desenho da cena, independentemente da cor.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">100</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">101</span><span class="sign">+</span><span class="code">O descritor foi proposto originalmente para detecção de pessoas, mas é um padrão do domínio espacial e já foi avaliado no CIFAKE com features manuais~\cite{nirob2026handcrafted}. Recorte e redimensionamento alteram a geometria das bordas; o blur as suaviza. HOG é, portanto, o descritor adequado para observar o efeito de crop, resize e filtros de suavização.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">102</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">103</span><span class="sign">+</span><span class="code">\subsection{Domínio da textura: LBP e GLCM}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">104</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">105</span><span class="sign">+</span><span class="code">O Padrão Binário Local (LBP) descreve a textura comparando cada pixel com os vizinhos em um círculo~\cite{ojala2002lbp}. Se o vizinho é mais claro, atribui-se 1; se é mais escuro, 0. O código binário rotula o padrão local. O histograma desses rótulos, na versão \emph{uniforme} --- invariante a rotação e com número reduzido de bins --- constitui o vetor de features.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">106</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">107</span><span class="sign">+</span><span class="code">A Matriz de Co-ocorrência de Níveis de Cinza (GLCM) é outra representação clássica de textura: contabiliza pares de pixels a uma dada distância e direção~\cite{gonzalez2018,nirob2026handcrafted}. Foi estudada por integrar o conjunto de descritores manuais relatados no CIFAKE. O LBP, no entanto, tem custo computacional menor e produz um vetor curto, o que é vantajoso quando se treina um SVM em dezenas de milhares de imagens.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">108</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">109</span><span class="sign">+</span><span class="code">Compressão e blur alteram a relação entre um pixel e sua vizinhança; espera-se, portanto, degradação de LBP e de GLCM sob JPEG forte e sob suavização.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">110</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">111</span><span class="sign">+</span><span class="code">\subsection{Classificadores estudados}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">112</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">113</span><span class="sign">+</span><span class="code">Com o vetor de features definido, três famílias de classificador foram examinadas.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">114</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">115</span><span class="sign">+</span><span class="code">\paragraph{SVM.}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">116</span><span class="sign">+</span><span class="code">A Máquina de Vetores de Suporte busca a fronteira que melhor separa as duas classes, maximizando a margem~\cite{cortes1995svm}. Com kernel linear, a fronteira é um hiperplano; com kernel RBF (\emph{Radial Basis Function}), pode ser curva, o que é adequado quando as classes não são linearmente separáveis. O parâmetro $C$ regula o compromisso entre margem e erros no treino. O SVM é o classificador clássico de reconhecimento de padrões e opera de forma natural sobre vetores de tamanho fixo.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">117</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">118</span><span class="sign">+</span><span class="code">\paragraph{$k$-NN.}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">119</span><span class="sign">+</span><span class="code">O classificador dos $k$ vizinhos mais próximos atribui à amostra nova o rótulo majoritário entre os $k$ exemplos de treino mais próximos~\cite{cover1967knn}. A regra é transparente, porém a predição, na forma ingênua, percorre o conjunto de treino. Com cerca de 100 mil imagens e vetores de centenas de dimensões, o custo torna-se elevado. Além disso, o método é sensível à escala das features.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">120</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">121</span><span class="sign">+</span><span class="code">\paragraph{CNN e ensembles.}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">122</span><span class="sign">+</span><span class="code">Redes convolucionais aprendem filtros e alcançam acurácia elevada no CIFAKE~\cite{bird2024cifake}. Ensembles sobre features manuais, como LightGBM, também constam da literatura~\cite{nirob2026handcrafted}. Ambos foram estudados como referência de desempenho. A CNN, contudo, dificulta associar o erro a FFT, HOG ou LBP; o ensemble afasta-se do classificador clássico de margem máxima.</span></div>
+<div class="line ctx"><span class="gutter">71</span><span class="gutter">123</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">72</span><span class="gutter">124</span><span class="sign"> </span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line ctx"><span class="gutter">73</span><span class="gutter">125</span><span class="sign"> </span><span class="code">\section{Desenvolvimento}</span></div>
+<div class="line del"><span class="gutter">74</span><span class="gutter"></span><span class="sign">−</span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line del"><span class="gutter">75</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">76</span><span class="gutter"></span><span class="sign">−</span><span class="code">Esta seção descreve o plano inicial do projeto: técnicas escolhidas, justificativa, dados e forma de avaliação.</span></div>
+<div class="line del"><span class="gutter">77</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">78</span><span class="gutter"></span><span class="sign">−</span><span class="code">\subsection{Objetivos e protocolo}</span></div>
+<div class="line del"><span class="gutter">79</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">80</span><span class="gutter"></span><span class="sign">−</span><span class="code">O experimento principal é simples: treinar o SVM só com imagens originais do CIFAKE e, depois, testar as mesmas imagens após transformações controladas, comparando FFT, HOG e LBP. A Figura~\ref{fig:fluxo} mostra o fluxo. Se o resultado não for bom o bastante, as features ou parâmetros podem ser ajustados.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">126</span><span class="sign">+</span><span class="code">\label{sec:desenvolvimento}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">127</span><span class="sign">+</span><span class="code">%----------------------------------------------------------------------</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">128</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">129</span><span class="sign">+</span><span class="code">A partir das técnicas da Seção~\ref{sec:fundamentacao}, esta seção apresenta a técnica selecionada, a justificativa da escolha, a perspectiva de utilização no problema de robustez e a metodologia do experimento. O fluxo geral está na Figura~\ref{fig:fluxo}.</span></div>
+<div class="line ctx"><span class="gutter">81</span><span class="gutter">130</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">82</span><span class="gutter">131</span><span class="sign"> </span><span class="code">\begin{figure}[ht]</span></div>
+<div class="line ctx"><span class="gutter">83</span><span class="gutter">132</span><span class="sign"> </span><span class="code">\centering</span></div>
+<div class="line hunk"><span class="gutter"></span><span class="gutter"></span><span class="code">@@ -91,7 +140,7 @@</span></div>
+<div class="line ctx"><span class="gutter">91</span><span class="gutter">140</span><span class="sign"> </span><span class="code">]</span></div>
+<div class="line ctx"><span class="gutter">92</span><span class="gutter">141</span><span class="sign"> </span><span class="code">  \node[box, fill=gray!15] (d) {CIFAKE\\real / fake};</span></div>
+<div class="line ctx"><span class="gutter">93</span><span class="gutter">142</span><span class="sign"> </span><span class="code">  \node[box, below=of d] (f) {Extrair FFT,\\HOG e LBP};</span></div>
+<div class="line del"><span class="gutter">94</span><span class="gutter"></span><span class="sign">−</span><span class="code">  \node[box, below=of f] (t) {Treinar SVM\\(imagens originais)};</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">143</span><span class="sign">+</span><span class="code">  \node[box, below=of f] (t) {Treinar SVM RBF\\(imagens originais)};</span></div>
+<div class="line ctx"><span class="gutter">95</span><span class="gutter">144</span><span class="sign"> </span><span class="code">  \node[box, below=of t] (x) {Aplicar\\transformações};</span></div>
+<div class="line ctx"><span class="gutter">96</span><span class="gutter">145</span><span class="sign"> </span><span class="code">  \node[box, below=of x] (e) {Medir acurácia\\por feature};</span></div>
+<div class="line ctx"><span class="gutter">97</span><span class="gutter">146</span><span class="sign"> </span><span class="code">  \node[dec, below=0.65cm of e] (q) {Resultado\\aceitável?};</span></div>
+<div class="line hunk"><span class="gutter"></span><span class="gutter"></span><span class="code">@@ -111,42 +160,45 @@</span></div>
+<div class="line ctx"><span class="gutter">111</span><span class="gutter">160</span><span class="sign"> </span><span class="code">\label{fig:fluxo}</span></div>
+<div class="line ctx"><span class="gutter">112</span><span class="gutter">161</span><span class="sign"> </span><span class="code">\end{figure}</span></div>
+<div class="line ctx"><span class="gutter">113</span><span class="gutter">162</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line del"><span class="gutter">114</span><span class="gutter"></span><span class="sign">−</span><span class="code">\subsection{Opções de técnicas e justificativa}</span></div>
+<div class="line del"><span class="gutter">115</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">116</span><span class="gutter"></span><span class="sign">−</span><span class="code">Foram escolhidas três tipos de features, cobrindo os domínios da disciplina e já usados na literatura de detecção:</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">163</span><span class="sign">+</span><span class="code">\subsection{Justificativa da técnica selecionada}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">164</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">165</span><span class="sign">+</span><span class="code">A técnica selecionada combina os descritores \textbf{FFT}, \textbf{HOG} e \textbf{LBP}, concatenados em um único vetor (fusão), com um \textbf{SVM de kernel RBF}.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">166</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">167</span><span class="sign">+</span><span class="code">Os três descritores cobrem os domínios de frequência, espaço e textura e já constam da literatura de detecção~\cite{frank2020frequency,bammey2024synthbuster,nirob2026handcrafted,dalal2005hog,ojala2002lbp}. A FFT captura marcas de geração e o efeito do JPEG; o HOG, a geometria das bordas; o LBP, a textura local. Isolado, cada descritor responde a um tipo de transformação; em conjunto, o classificador dispõe de um retrato mais completo da imagem. Nirob et al.~\cite{nirob2026handcrafted} mostraram que a fusão de descritores manuais no CIFAKE melhora o desempenho, o que justifica concatenar as três representações em vez de restringir o detector a uma única família.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">168</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">169</span><span class="sign">+</span><span class="code">O SVM é preferível ao $k$-NN e à CNN por três razões. Primeiro, trata-se do classificador clássico de margem máxima, com interpretação geométrica clara~\cite{cortes1995svm}. Segundo, com vetor de fusão de 362 dimensões e 100 mil exemplos de treino, o $k$-NN torna a predição custosa e permanece sensível à escala das variáveis. Terceiro, a CNN, ainda que competitiva no CIFAKE~\cite{bird2024cifake}, não expõe de forma direta qual domínio degradou após crop ou JPEG --- precisamente o que o protocolo de robustez precisa evidenciar. O kernel RBF, em detrimento do kernel linear, admite fronteira não linear, hipótese mais realista para a separação real/sintético em features manuais.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">170</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">171</span><span class="sign">+</span><span class="code">GLCM, histograma de cor e DCT foram estudados~\cite{nirob2026handcrafted,gonzalez2018}, mas não integram o pipeline principal: repetiriam informação já coberta por LBP (textura) e por FFT (frequência), além de aumentar a dimensionalidade sem ganho interpretativo proporcional.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">172</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">173</span><span class="sign">+</span><span class="code">\subsection{Perspectiva de utilização no problema}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">174</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">175</span><span class="sign">+</span><span class="code">O problema específico não se reduz a classificar uma imagem intacta. Interessa saber se o detector permanece eficaz depois que a imagem circula em redes sociais, ou seja, depois de compressão, recorte, redimensionamento e filtros. Nessa perspectiva, o SVM \emph{não} é treinado em imagens transformadas. A fronteira real/sintético é aprendida apenas nas originais do CIFAKE e permanece fixa na avaliação. O que se altera é o conjunto de teste: as mesmas imagens sofrem JPEG, crop, resize, blur e um pipeline combinado. A quantidade de interesse é a \emph{queda} de acurácia --- diferença entre o baseline (teste original) e o acerto após cada transformação --- desagregada por tipo de feature.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">176</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">177</span><span class="sign">+</span><span class="code">Essa leitura associa cada descritor a um mecanismo de degradação esperado:</span></div>
+<div class="line ctx"><span class="gutter">117</span><span class="gutter">178</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">118</span><span class="gutter">179</span><span class="sign"> </span><span class="code">\begin{itemize}</span></div>
+<div class="line del"><span class="gutter">119</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item \textbf{Frequência (FFT):} pega padrões no espectro; útil porque geração por IA e JPEG deixam marcas nessa área~\cite{frank2020frequency,bammey2024synthbuster}.</span></div>
+<div class="line del"><span class="gutter">120</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item \textbf{Espaço (HOG):} descreve bordas e gradientes locais; já foi testado no CIFAKE~\cite{nirob2026handcrafted}.</span></div>
+<div class="line del"><span class="gutter">121</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item \textbf{Textura (LBP):} descreve padrões locais de intensidade; também teve bons resultados em~\cite{nirob2026handcrafted}.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">180</span><span class="sign">+</span><span class="code">\item JPEG altera o espectro e deve afetar sobretudo a FFT~\cite{bammey2024synthbuster};</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">181</span><span class="sign">+</span><span class="code">\item crop e resize modificam a geometria e devem afetar o HOG~\cite{choi2025warpad,dalal2005hog};</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">182</span><span class="sign">+</span><span class="code">\item blur e compressão forte perturbam a vizinhança dos pixels e devem afetar o LBP~\cite{ojala2002lbp}.</span></div>
+<div class="line ctx"><span class="gutter">122</span><span class="gutter">183</span><span class="sign"> </span><span class="code">\end{itemize}</span></div>
+<div class="line ctx"><span class="gutter">123</span><span class="gutter">184</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line del"><span class="gutter">124</span><span class="gutter"></span><span class="sign">−</span><span class="code">Como classificador, foram consideradas as opções SVM, $k$-NN e ensembles (como LightGBM~\cite{nirob2026handcrafted}). A escolha principal é o \textbf{SVM}, porque funciona bem com vetores de features, é comum em reconhecimento de padrões e é mais fácil de explicar do que uma rede neural. $k$-NN e ensembles ficam como opções extras, se houver tempo.</span></div>
+<div class="line del"><span class="gutter">125</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">126</span><span class="gutter"></span><span class="sign">−</span><span class="code">Redes neurais profundas não são o foco agora: a ideia é seguir a linha clássica da disciplina e conseguir relacionar a queda de desempenho a cada tipo de feature.</span></div>
+<div class="line del"><span class="gutter">127</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">128</span><span class="gutter"></span><span class="sign">−</span><span class="code">\subsection{Dados}</span></div>
+<div class="line del"><span class="gutter">129</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">130</span><span class="gutter"></span><span class="sign">−</span><span class="code">Será usado o dataset CIFAKE~\cite{bird2024cifake}, também utilizado por~\cite{nirob2026handcrafted}: cerca de 120\,000 imagens $32{\times}32$, metade reais (CIFAR-10) e metade sintéticas (Stable Diffusion), já separadas em treino e teste. Os dados serão baixados de repositório público (por exemplo, Kaggle), sem coleta própria nesta etapa. Se der, podem ser olhadas algumas imagens de geradores atuais (ChatGPT/DALL$\cdot$E, Midjourney, Gemini/Nano Banana) só para entender diferenças de geração e ajudar na robustez --- sem substituir o CIFAKE.</span></div>
+<div class="line del"><span class="gutter">131</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">132</span><span class="gutter"></span><span class="sign">−</span><span class="code">A Figura~\ref{fig:zerogpt-editada} não entra no cálculo das métricas: serve só para motivar o problema da compressão.</span></div>
+<div class="line del"><span class="gutter">133</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">134</span><span class="gutter"></span><span class="sign">−</span><span class="code">\subsection{Transformações}</span></div>
+<div class="line del"><span class="gutter">135</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">136</span><span class="gutter"></span><span class="sign">−</span><span class="code">As transformações escolhidas imitam o que acontece quando uma imagem circula na internet~\cite{bammey2024synthbuster,choi2025warpad}:</span></div>
+<div class="line del"><span class="gutter">137</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">138</span><span class="gutter"></span><span class="sign">−</span><span class="code">\begin{itemize}</span></div>
+<div class="line del"><span class="gutter">139</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item compressão JPEG (90\%, 70\% e 50\%);</span></div>
+<div class="line del"><span class="gutter">140</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item geometria: resize e crop (10\%, 25\% e 40\%);</span></div>
+<div class="line del"><span class="gutter">141</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item filtros: blur (e, se houver tempo, sharpen/brilho);</span></div>
+<div class="line del"><span class="gutter">142</span><span class="gutter"></span><span class="sign">−</span><span class="code">\item combinação: crop $\rightarrow$ resize $\rightarrow$ JPEG.</span></div>
+<div class="line del"><span class="gutter">143</span><span class="gutter"></span><span class="sign">−</span><span class="code">\end{itemize}</span></div>
+<div class="line del"><span class="gutter">144</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">145</span><span class="gutter"></span><span class="sign">−</span><span class="code">\subsection{Avaliação}</span></div>
+<div class="line del"><span class="gutter">146</span><span class="gutter"></span><span class="sign">−</span><span class="code"></span></div>
+<div class="line del"><span class="gutter">147</span><span class="gutter"></span><span class="sign">−</span><span class="code">Serão medidas a acurácia e, se fizer sentido, precisão e \emph{recall}, no teste sem transformação (\emph{baseline}) e depois de cada transformação, separando FFT, HOG e LBP. O objetivo é ver quais padrões somem com cada mudança e quais features aguentam melhor~\cite{frank2020frequency,nirob2026handcrafted,bammey2024synthbuster}.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">185</span><span class="sign">+</span><span class="code">A fusão corresponde ao detector de uso prático, destinado a uma imagem qualquer. FFT, HOG e LBP isolados permanecem no experimento para localizar \emph{onde} a robustez se perde. Se a acurácia da fusão no original for insuficiente, ajustam-se descritores ou hiperparâmetros e o ciclo da Figura~\ref{fig:fluxo} se repete. Resultados preliminares da fusão no teste original situam a acurácia na ordem de 92\%, o que sustenta o desenho escolhido e desloca a ênfase para a análise de robustez.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">186</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">187</span><span class="sign">+</span><span class="code">A mesma cadeia --- extração dos três descritores, fusão e SVM já treinado --- admite, como desdobramento, uma ferramenta de inspeção que recebe uma imagem e devolve um escore de probabilidade de conteúdo sintético, inclusive após as transformações do protocolo.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">188</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">189</span><span class="sign">+</span><span class="code">\subsection{Metodologia}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">190</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">191</span><span class="sign">+</span><span class="code">O experimento emprega o CIFAKE~\cite{bird2024cifake} na divisão original: 100 mil imagens de treino e 20 mil de teste, resolução $32{\times}32$, classes balanceadas (reais provenientes do CIFAR-10 e sintéticas geradas por Stable Diffusion). Não há coleta própria. Os exemplos do ZeroGPT (Figura~\ref{fig:zerogpt-editada}) não participam do cálculo das métricas; servem apenas para motivar o problema. Imagens de geradores contemporâneos podem ser examinadas de forma complementar, sem substituir o CIFAKE.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">192</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">193</span><span class="sign">+</span><span class="code">A FFT é calculada em escala de cinza, com deslocamento do espectro, magnitude logarítmica e média radial em 64 faixas, gerando um vetor de 64 componentes normalizado em $[0,1]$. O HOG utiliza células $8{\times}8$, blocos $2{\times}2$ e 8 orientações, parâmetros adequados a $32{\times}32$~\cite{dalal2005hog}, e produz 288 componentes. O LBP uniforme emprega $P=8$ vizinhos e raio $R=1$, com histograma de 10 bins normalizado~\cite{ojala2002lbp}. Cada família é padronizada por \texttt{StandardScaler} ajustado exclusivamente no treino, a fim de evitar vazamento de informação do teste e de impedir que a dimensionalidade maior de um descritor domine o SVM. A fusão concatena os três vetores já escalados, na ordem FFT, HOG e LBP, totalizando 362 componentes.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">194</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">195</span><span class="sign">+</span><span class="code">Treina-se um SVM por descritor isolado, para comparar os domínios, e um SVM sobre a fusão, para maximizar o desempenho conjunto. Em todos os casos utiliza-se \texttt{SVC} com kernel RBF, $C=10$ e $\gamma=\mathrm{scale}$~\cite{cortes1995svm}. Busca em grade de $C$ restringe-se a subconjuntos menores; no conjunto completo o valor permanece fixo, pois validação cruzada com RBF em 100 mil exemplos seria incompatível com o tempo disponível. Modelos e scalers são persistidos para reutilização na avaliação e em eventuais ferramentas de inspeção.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">196</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">197</span><span class="sign">+</span><span class="code">As transformações reproduzem a circulação digital~\cite{bammey2024synthbuster,choi2025warpad}: JPEG com qualidade 90, 70 e 50; crop aleatório de 10\%, 25\% e 40\%, com retorno a $32{\times}32$; redução à metade da resolução e restauração do tamanho; blur gaussiano $3{\times}3$; e o pipeline \emph{crop 25\% $\rightarrow$ resize $0{,}5$ $\rightarrow$ JPEG 70}. Após cada operação a imagem permanece RGB $32{\times}32$, de modo que a dimensionalidade dos descritores não se altere.</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">198</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">199</span><span class="sign">+</span><span class="code">A métrica principal é a acurácia. Compara-se o teste original (baseline) com o teste transformado, para FFT, HOG, LBP e fusão, sem retreinar o classificador. Gráficos de barras e um mapa de calor da queda de acurácia subsidiam a discussão sobre quais padrões visuais desaparecem com cada transformação.</span></div>
+<div class="line ctx"><span class="gutter">148</span><span class="gutter">200</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">149</span><span class="gutter">201</span><span class="sign"> </span><span class="code">\bibliographystyle{sbc}</span></div>
+<div class="line del"><span class="gutter">150</span><span class="gutter"></span><span class="sign">−</span><span class="code">\bibliography{referencias}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">202</span><span class="sign">+</span><span class="code">\bibliography{referencias-e2}</span></div>
+<div class="line ctx"><span class="gutter">151</span><span class="gutter">203</span><span class="sign"> </span><span class="code"></span></div>
+<div class="line ctx"><span class="gutter">152</span><span class="gutter">204</span><span class="sign"> </span><span class="code">\end{document}</span></div>
+</div>
+    <h2>referencias.bib → referencias-e2.bib</h2>
+<div class="diff">
+<div class="line file"><span class="gutter"></span><span class="gutter"></span><span class="code">--- referencias.bib</span></div>
+<div class="line file"><span class="gutter"></span><span class="gutter"></span><span class="code">+++ referencias-e2.bib</span></div>
+<div class="line hunk"><span class="gutter"></span><span class="gutter"></span><span class="code">@@ -38,3 +38,50 @@</span></div>
+<div class="line ctx"><span class="gutter">38</span><span class="gutter">38</span><span class="sign"> </span><span class="code">  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},</span></div>
+<div class="line ctx"><span class="gutter">39</span><span class="gutter">39</span><span class="sign"> </span><span class="code">  year      = {2025}</span></div>
+<div class="line ctx"><span class="gutter">40</span><span class="gutter">40</span><span class="sign"> </span><span class="code">}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">41</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">42</span><span class="sign">+</span><span class="code">@book{gonzalez2018,</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">43</span><span class="sign">+</span><span class="code">  author    = {Gonzalez, Rafael C. and Woods, Richard E.},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">44</span><span class="sign">+</span><span class="code">  title     = {Digital Image Processing},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">45</span><span class="sign">+</span><span class="code">  edition   = {4},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">46</span><span class="sign">+</span><span class="code">  publisher = {Pearson},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">47</span><span class="sign">+</span><span class="code">  year      = {2018},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">48</span><span class="sign">+</span><span class="code">  address   = {New York}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">49</span><span class="sign">+</span><span class="code">}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">50</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">51</span><span class="sign">+</span><span class="code">@inproceedings{dalal2005hog,</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">52</span><span class="sign">+</span><span class="code">  author    = {Dalal, Navneet and Triggs, Bill},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">53</span><span class="sign">+</span><span class="code">  title     = {Histograms of Oriented Gradients for Human Detection},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">54</span><span class="sign">+</span><span class="code">  booktitle = {IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR)},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">55</span><span class="sign">+</span><span class="code">  year      = {2005},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">56</span><span class="sign">+</span><span class="code">  pages     = {886--893}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">57</span><span class="sign">+</span><span class="code">}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">58</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">59</span><span class="sign">+</span><span class="code">@article{ojala2002lbp,</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">60</span><span class="sign">+</span><span class="code">  author    = {Ojala, Timo and Pietik{\&quot;a}inen, Matti and M{\&quot;a}enp{\&quot;a}{\&quot;a}, Topi},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">61</span><span class="sign">+</span><span class="code">  title     = {Multiresolution Gray-Scale and Rotation Invariant Texture Classification with Local Binary Patterns},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">62</span><span class="sign">+</span><span class="code">  journal   = {IEEE Transactions on Pattern Analysis and Machine Intelligence},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">63</span><span class="sign">+</span><span class="code">  year      = {2002},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">64</span><span class="sign">+</span><span class="code">  volume    = {24},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">65</span><span class="sign">+</span><span class="code">  number    = {7},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">66</span><span class="sign">+</span><span class="code">  pages     = {971--987}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">67</span><span class="sign">+</span><span class="code">}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">68</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">69</span><span class="sign">+</span><span class="code">@article{cortes1995svm,</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">70</span><span class="sign">+</span><span class="code">  author    = {Cortes, Corinna and Vapnik, Vladimir},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">71</span><span class="sign">+</span><span class="code">  title     = {Support-Vector Networks},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">72</span><span class="sign">+</span><span class="code">  journal   = {Machine Learning},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">73</span><span class="sign">+</span><span class="code">  year      = {1995},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">74</span><span class="sign">+</span><span class="code">  volume    = {20},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">75</span><span class="sign">+</span><span class="code">  number    = {3},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">76</span><span class="sign">+</span><span class="code">  pages     = {273--297}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">77</span><span class="sign">+</span><span class="code">}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">78</span><span class="sign">+</span><span class="code"></span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">79</span><span class="sign">+</span><span class="code">@article{cover1967knn,</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">80</span><span class="sign">+</span><span class="code">  author    = {Cover, Thomas and Hart, Peter},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">81</span><span class="sign">+</span><span class="code">  title     = {Nearest Neighbor Pattern Classification},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">82</span><span class="sign">+</span><span class="code">  journal   = {IEEE Transactions on Information Theory},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">83</span><span class="sign">+</span><span class="code">  year      = {1967},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">84</span><span class="sign">+</span><span class="code">  volume    = {13},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">85</span><span class="sign">+</span><span class="code">  number    = {1},</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">86</span><span class="sign">+</span><span class="code">  pages     = {21--27}</span></div>
+<div class="line add"><span class="gutter"></span><span class="gutter">87</span><span class="sign">+</span><span class="code">}</span></div>
+</div>
+  </div>
+</body>
+</html>
