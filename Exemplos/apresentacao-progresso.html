@@ -245,6 +245,24 @@
     .bar-fill.accent { background: var(--accent); }
     .bar-val { font-size: 0.9rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 
+    .cmp-head, .cmp-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr 130px;
+      gap: 10px;
+      align-items: center;
+    }
+    .cmp-head {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 12px 0 6px;
+    }
+    .cmp-row { margin: 7px 0; }
+    .cmp-delta { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .cmp-delta.up { color: var(--success); }
+    .cmp-delta.down { color: var(--danger); }
+
     .mock-app {
       background: #eceff1;
       border-radius: 12px;
@@ -293,7 +311,8 @@
     <section class="slide">
       <div class="content title-slide">
         <span class="tag">Progresso</span>
-        <h1>Detecção de Imagens Sintéticas após Transformações </h1> <h2>Detector clássico a 92%</h2>
+        <h1>Detecção de Imagens Sintéticas após Transformações</h1>
+        <h2>Da falha tipo ZeroGPT (92% → 54%) para um detector que segura 71%</h2>
         <p class="authors">Nathália G. Ribas · Igor M. da Rosa</p>
       </div>
     </section>
@@ -314,31 +333,46 @@
           <div class="flow-step next">App Python</div>
         </div>
         <div class="grid-2" style="margin-top:28px">
-          <div class="card success">
-            <h3>Já medido</h3>
+          <div class="card warn">
+            <h3>Versão 1 — só original</h3>
             <ul>
-              <li>Baseline em imagens originais</li>
-              <li>Queda de acurácia por transformação</li>
-              <li>Modelos salvos (<code>.pkl</code>)</li>
+              <li>Fusão: <strong>92,0%</strong> no teste limpo</li>
+              <li>Crop / blur / pipeline: cai para ~<strong>54%</strong></li>
+              <li>Repete o problema do ZeroGPT</li>
             </ul>
           </div>
-          <div class="card accent">
-            <h3>Falta (objetivo)</h3>
+          <div class="card success">
+            <h3>Versão 2 — com transformações</h3>
             <ul>
-              <li>App: escolher uma foto</li>
-              <li>Mostrar chance de ser IA</li>
-              <li>Testar a mesma foto transformada</li>
+              <li>Fusão: <strong>86,1%</strong> no teste limpo</li>
+              <li>Pipeline: ainda <strong>71,2%</strong> · blur <strong>81,8%</strong></li>
+              <li>App Python ainda falta</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 7 — Robustez FUSION -->
+    <!-- 6 — SVM v1 -->
     <section class="slide">
       <div class="content">
-        <h2>Precisão depois das transformações</h2>
-        <p style="margin-bottom:8px">Mesmo SVM da fusão (92%). Só o teste muda.</p>
+        <h2>Versão 1 — SVM no teste original</h2>
+        <p style="margin-bottom:4px;color:var(--muted)">Treino só em imagens intactas · 100 mil amostras · 20 mil de teste</p>
+        <div class="grid-4" style="margin-top:20px">
+          <div class="card kpi"><div class="value">80,7%</div><div class="label">FFT</div></div>
+          <div class="card kpi"><div class="value">81,8%</div><div class="label">HOG</div></div>
+          <div class="card kpi"><div class="value">72,1%</div><div class="label">LBP</div></div>
+          <div class="card kpi success"><div class="value success">92,0%</div><div class="label">Fusão</div></div>
+        </div>
+        <p class="caption" style="margin-top:20px">No original, funciona. O problema aparece depois da transformação.</p>
+      </div>
+    </section>
+
+    <!-- 7 — Robustez v1 -->
+    <section class="slide">
+      <div class="content">
+        <h2>Versão 1 — a fusão depois das transformações</h2>
+        <p style="margin-bottom:8px">Treino só no original. Só o teste muda. Mesmo tipo de falha do ZeroGPT.</p>
         <div class="bar-row">
           <span class="bar-label">Original</span>
           <div class="bar-track"><div class="bar-fill success" style="width:92.04%"></div></div>
@@ -377,35 +411,114 @@
       </div>
     </section>
 
-    <!-- 8 — Gráfico real -->
+    <!-- 8 — Gráficos v1 -->
     <section class="slide">
       <div class="content">
-        <h2>Acurácia por transformação</h2>
+        <h2>Versão 1 — acurácia por transformação</h2>
         <div class="img-box">
-          <img src="../Cod/results/acuracia_por_transformacao.png" alt="Acurácia por transformação e família de feature">
+          <img src="../Cod/results/acuracia_por_transformacao.png" alt="Acurácia versão 1">
         </div>
-        <p class="caption">Linhas pontilhadas = baseline. JPEG quase não mexe. Crop / blur / pipeline caem forte.</p>
+        <p class="caption">JPEG ok; crop / blur / pipeline caem. Fusão perde até 38 p.p. no blur.</p>
       </div>
     </section>
-    
-    <!-- 10 — Aprendizados -->
+
+    <!-- 9 — SVM v2 -->
+    <section class="slide">
+      <div class="content">
+        <h2>Versão 2 — SVM no teste original</h2>
+        <p style="margin-bottom:4px;color:var(--muted)">Treino com original + 9 transformações · 100 mil amostras · 20 mil de teste</p>
+        <div class="grid-4" style="margin-top:20px">
+          <div class="card kpi"><div class="value">75,3%</div><div class="label">FFT · 13 min</div></div>
+          <div class="card kpi"><div class="value">76,2%</div><div class="label">HOG · 2 h 36 min</div></div>
+          <div class="card kpi"><div class="value">71,1%</div><div class="label">LBP · 3 min</div></div>
+          <div class="card kpi success"><div class="value success">86,1%</div><div class="label">Fusão · 2 h 32 min</div></div>
+        </div>
+        <p class="caption" style="margin-top:20px">Cede ~6 p.p. no original em troca de não colapsar depois do crop e do blur.</p>
+      </div>
+    </section>
+
+    <!-- 10 — Comparação fusão -->
+    <section class="slide">
+      <div class="content">
+        <h2>Fusão: versão 1 × versão 2</h2>
+        <div class="cmp-head">
+          <span></span><span>v1 só original</span><span>v2 com transf.</span><span class="cmp-delta">diferença</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">Original</span>
+          <div class="bar-track"><div class="bar-fill success" style="width:92.04%"></div></div>
+          <div class="bar-track"><div class="bar-fill success" style="width:86.08%"></div></div>
+          <span class="cmp-delta down">92,0 → 86,1</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">JPEG 70</span>
+          <div class="bar-track"><div class="bar-fill success" style="width:91.53%"></div></div>
+          <div class="bar-track"><div class="bar-fill success" style="width:86.76%"></div></div>
+          <span class="cmp-delta down">91,5 → 86,8</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">Crop 10%</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:62.41%"></div></div>
+          <div class="bar-track"><div class="bar-fill success" style="width:81.15%"></div></div>
+          <span class="cmp-delta up">62,4 → 81,2</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">Crop 25%</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:56.52%"></div></div>
+          <div class="bar-track"><div class="bar-fill warn" style="width:77.86%"></div></div>
+          <span class="cmp-delta up">56,5 → 77,9</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">Resize</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:55.13%"></div></div>
+          <div class="bar-track"><div class="bar-fill success" style="width:79.70%"></div></div>
+          <span class="cmp-delta up">55,1 → 79,7</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">Blur</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:53.71%"></div></div>
+          <div class="bar-track"><div class="bar-fill success" style="width:81.78%"></div></div>
+          <span class="cmp-delta up">53,7 → 81,8</span>
+        </div>
+        <div class="cmp-row">
+          <span class="bar-label">Pipeline</span>
+          <div class="bar-track"><div class="bar-fill danger" style="width:55.18%"></div></div>
+          <div class="bar-track"><div class="bar-fill warn" style="width:71.19%"></div></div>
+          <span class="cmp-delta up">55,2 → 71,2</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 — Gráficos v2 -->
+    <section class="slide">
+      <div class="content">
+        <h2>Versão 2 — acurácia por transformação</h2>
+        <div class="img-box">
+          <img src="../Cod/results/acuracia_robusto.png" alt="Acurácia versão 2">
+        </div>
+        <p class="caption">Fusão acima de 71% em todos os casos. Pipeline cai 14,9 p.p. (antes 36,9).</p>
+      </div>
+    </section>
+
+    <!-- 12 — Aprendizados -->
     <section class="slide">
       <div class="content">
         <h2>O que isso significa</h2>
         <div class="grid-3">
+          <div class="card danger">
+            <h3>1. A v1 repetia o ZeroGPT</h3>
+            <p>92% na foto limpa, ~54% depois de crop ou blur. O sinal some.</p>
+          </div>
           <div class="card success">
-            <h3>1. No original, funciona</h3>
-            <p>92% é um detector útil para foto “limpa”.</p>
+            <h3>2. A v2 corrige o problema</h3>
+            <p>Cede 6 p.p. no original e ganha até 28 p.p. no blur.</p>
           </div>
           <div class="card warn">
-            <h3>2. JPEG não é o vilão</h3>
-            <p>Qualidade 90 e 70: ainda 91,5%.</p>
-          </div>
-          <div class="card danger">
-            <h3>3. Recorte e blur são</h3>
-            <p>Screenshot + crop + filtro: o sinal some.</p>
+            <h3>3. Crop ainda é o mais difícil</h3>
+            <p>Pipeline fica em 71% — não é 90%, mas não colapsa.</p>
           </div>
         </div>
+      </div>
     </section>
 
     <!-- 11 — Objetivo do app -->
@@ -422,7 +535,7 @@
             </ul>
             <div class="card accent" style="margin-top:20px">
               <h3>Por que isso fecha o trabalho</h3>
-              <p style="margin-top:8px;line-height:1.6">Tira o experimento do notebook e mostra, ao vivo, o que medimos: 92% no original e a queda depois das transformações.</p>
+              <p style="margin-top:8px;line-height:1.6">Mostra ao vivo o que a v2 corrigiu: a v1 caía para ~54% depois do crop/blur; agora a fusão segura 71% no pipeline.</p>
             </div>
           </div>
           <div class="mock-app">
@@ -434,7 +547,7 @@
               <p style="font-size:2rem;font-weight:700;color:var(--danger);margin:8px 0 4px">87%</p>
               <div class="prob-track"><div class="prob-fill"></div></div>
               <p class="caption" style="text-align:left;margin-top:16px">
-                Modelo: SVM RBF (fusão) · treinado no CIFAKE
+                Modelo: SVM RBF (fusão) · CIFAKE com transformações
               </p>
             </div>
           </div>
@@ -447,9 +560,9 @@
       <div class="content title-slide">
         <h2 style="color:var(--primary-dark);margin-bottom:24px">Em uma frase</h2>
         <div class="grid-3" style="text-align:left">
-          <div class="card success"><h3>Hoje</h3><p>SVM clássico acerta <strong>92%</strong> no original.</p></div>
-          <div class="card warn"><h3>Limite</h3><p>Crop e blur derrubam para ~<strong>54%</strong>.</p></div>
-          <div class="card accent"><h3>Próximo</h3><p>App: foto → chance de ser IA.<br> Tentar melhorar a precisão com Crop e blur</p></div>
+          <div class="card warn"><h3>Versão 1</h3><p>92% no original, mas crop/blur derrubam para ~<strong>54%</strong> (igual o ZeroGPT).</p></div>
+          <div class="card success"><h3>Versão 2</h3><p>86% no original e <strong>71%</strong> no pior caso — o detector não colapsa mais.</p></div>
+          <div class="card accent"><h3>Próximo</h3><p>App: foto → chance de ser IA.</p></div>
         </div>
         <p style="margin-top:40px;font-size:1.3rem;color:var(--primary-dark)">Perguntas?</p>
       </div>
