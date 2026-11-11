@@ -12,6 +12,37 @@ Avaliar a **robustez** de detectores de imagens geradas por IA quando essas imag
 
 Uma explicação didática, célula por célula, das técnicas, finalidades, limitações e formas de aumentar a acurácia está em [`Cod/EXPLICACAO_MAIN.md`](Cod/EXPLICACAO_MAIN.md).
 
+## Aplicação interativa
+
+A interface Streamlit recebe uma imagem e executa uma análise multiescala com janelas
+sobrepostas. Recortes de 32 a 256 pixels são redimensionados para a entrada 32 × 32
+do modelo. Na escala 32 × 32, uma segunda grade deslocada 16 pixels valida os vãos
+horizontais, verticais e o encontro central entre quatro blocos. Todas as previsões
+são combinadas em um mapa de calor. A probabilidade global identifica componentes
+conectados acima de um limiar adaptativo e combina a intensidade e a extensão da
+região mais forte com a média geral. A interface mostra a média simples, o limiar e
+os contornos das regiões para permitir a auditoria do resultado.
+
+1. Execute o treinamento e a persistência dos modelos no notebook `Cod/main.ipynb`.
+2. Confirme que `Cod/models/` contém `svm_fusion.pkl` e os scalers de FFT, HOG e LBP.
+   A aplicação também encontra automaticamente os artefatos robustos e a cópia irmã em
+   `../Processado/DeteccaoImagensSinteticas/Cod/models/`, quando disponível.
+3. Instale e inicie a aplicação:
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+Os modelos atuais foram persistidos com scikit-learn 1.4.2. Para máxima
+reprodutibilidade, use a mesma versão; arquivos `joblib` devem ser carregados somente
+quando sua origem for confiável.
+
+O treinamento atual usa `SVC` sem calibração probabilística. Nesse caso, a interface
+converte a distância à fronteira por uma função sigmoide e informa explicitamente que
+o percentual é uma estimativa de confiança. Para probabilidades calibradas, retreine
+com calibração (`CalibratedClassifierCV`) sobre um conjunto de validação separado.
+
 ## Pergunta de pesquisa
 
 > Quão robustos são detectores de imagens sintéticas quando a imagem sofre transformações típicas de circulação na internet?

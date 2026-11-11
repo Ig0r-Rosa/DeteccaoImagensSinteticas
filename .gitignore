@@ -1,3 +1,6 @@
 Cod/local/
 Cod/models/
 Cod/results/
+__pycache__/
+*.py[cod]
+.streamlit/
