@@ -1,207 +1,95 @@
 # Detecção de Imagens Sintéticas após Transformações
 
-Trabalho final da disciplina **INE410159 / TRV410001 — Visão Computacional** (UFSC, 2026.2).
+Trabalho final — **INE410159 / TRV410001 — Visão Computacional** (UFSC, 2026.2).
+
+**Autores:** Igor de Matos da Rosa · Nathália Geraldino Ribas
 
 ---
 
 ## Objetivo
 
-Avaliar a **robustez** de detectores de imagens geradas por IA quando essas imagens passam por transformações comuns de compartilhamento digital (compressão, crop, resize, screenshot, filtros etc.).
+Medir a **robustez** de um detector clássico (FFT / HOG / LBP + SVM) quando imagens reais e sintéticas sofrem transformações típicas de redes sociais.
 
-## Documentação do código
-
-Uma explicação didática, célula por célula, das técnicas, finalidades, limitações e formas de aumentar a acurácia está em [`Cod/EXPLICACAO_MAIN.md`](Cod/EXPLICACAO_MAIN.md).
-
-## Modelo v3 (Instagram AI + CelebA + cenas — sem CIFAKE)
-
-Notebook: [`Cod/main_v3_instagram.ipynb`](Cod/main_v3_instagram.ipynb)
-
-| Pasta | Conteúdo |
-|---|---|
-| `Base/instagram_ai/` | IA do [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/MGJPBL) |
-| `Base/celeba_real/` | REAL — [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) |
-| `Base/landscape_real/` | REAL cenas (LHQ / COCO / Open Images) — recomendado |
-| `Base/archive/` | CIFAKE — **não usada** no treino v3 atual |
-
-Treino (GPU RTX 3050 6GB):
-
-1. Organize as pastas sociais (ver `Base/README.md`).
-2. Abra `Cod/main_v3_instagram.ipynb` com `MODO = "forte"` ou `"completo"`.
-3. Imagem **inteira** com letterbox **224×224**; SVM RBF (ThunderSVM → sklearn).
-4. Saídas: `Cod/models/svm_v3_*.pkl`, `scaler_v3_*.pkl`.
-
-## Aplicação interativa
-
-Uma passagem na **foto toda** (letterbox 224×224, mesma proporção — sem grid).
-O veredito é o score da **Fusão**.
-Entre **40% e 60%** o resultado fica **inconclusivo**.
-
-> Modelos antigos (32×32 / CIFAKE) **não servem** — retreine no notebook.
-
-1. Preferência de modelos: **`svm_v3_*`** → `svm_robusto_*` → `svm_fusion.pkl`.
-2. Confirme que `Cod/models/` tem o conjunto desejado.
-3. Instale e inicie:
-
-```bash
-python -m pip install -r requirements.txt
-streamlit run app.py
-```
-
-Arquivos `joblib` devem ser carregados somente quando a origem for confiável.
-
-## Pergunta de pesquisa
-
-> Quão robustos são detectores de imagens sintéticas quando a imagem sofre transformações típicas de circulação na internet?
-
-## Contexto e aplicações reais
-
-| Cenário | O que acontece | Por que importa |
-|---|---|---|
-| **Política em período eleitoral** | Fotos de candidatos são manipuladas ou geradas por IA e compartilhadas em redes sociais (WhatsApp, Instagram, X) | Desinformação visual influencia eleitores; a imagem raramente chega intacta — passa por crop, compressão e repostagens |
-| **Venda de imóveis** | Anúncios alteram fotos do imóvel (cores, iluminação, remoção de defeitos, ampliação de cômodos) para parecer mais atrativo | Comprador decide com base em imagem enganosa; transformações escondem sinais de edição |
-
-Esses casos motivam o foco em **robustez**: a imagem que o detector recebe quase nunca é a original — é uma versão já transformada pela circulação digital ou pela intenção de manipulação.
-
-## Testes preliminares
-
-Os exemplos em [`Exemplos/`](Exemplos/) foram testados com o **[ZeroGPT AI Image Detector](https://www.zerogpt.com/pt/ai-image-detector)** para ilustrar como transformações afetam detectores existentes.
-
-| Etapa | Ferramenta | Papel |
-|---|---|---|
-| Testes exploratórios | [ZeroGPT](https://www.zerogpt.com/pt/ai-image-detector) | Screenshots de referência (`GeradaIA/`, `EditadaIA/`) |
-| Trabalho final | Visão clássica (FFT, HOG, LBP + SVM) | Detector próprio implementado no código |
-
-## Ideia do projeto
-
-Em vez de apenas treinar um classificador "real vs IA", este trabalho é um **experimento científico de robustez**:
-
-1. Obter imagens reais e sintéticas (geradas por IA).
-2. Treinar classificador clássico (SVM/kNN) com features extraídas das imagens originais.
-3. Aplicar transformações sistemáticas em cada imagem.
-4. Medir como a performance degrada a cada transformação.
-
-Isso permite discutir **degradação do espaço de características**, **generalização** e **reconhecimento de padrões** — temas centrais da disciplina.
-
-## Abordagem (Visão Clássica)
-
-Paradigma alinhado ao conteúdo da disciplina: **extrair features manualmente** e classificar com **SVM ou kNN**.
-
-```mermaid
-flowchart LR
-    dataset[Dataset real vs sintetico]
-    features[Extracao de features classicas]
-    transforms[Pipeline de transformacoes]
-    classifier[SVM ou kNN]
-    eval[Avaliacao por transformacao]
-    outputs[Poster Slides Video Relatorio]
-
-    dataset --> features
-    features --> classifier
-    dataset --> transforms
-    transforms --> features
-    classifier --> eval
-    eval --> outputs
-```
-
-| Etapa | O que fazemos |
-|---|---|
-| Features | Extrair descritores clássicos (FFT, HOG, LBP, histograma) |
-| Baseline | Treinar SVM/kNN em imagens **sem** transformação |
-| Transformações | Aplicar crop, JPEG, resize, blur etc. de forma controlada |
-| Comparação | Medir queda de acurácia por transformação **e por tipo de feature** |
-| Análise | Identificar quais padrões visuais desaparecem após cada transformação |
-
-## Transformações planejadas
-
-| Categoria | Transformações |
-|---|---|
-| Compressão | JPEG 90%, 70%, 50% |
-| Geometria | Resize, crop 10%, 25%, 40% |
-| Captura | Screenshot simulado |
-| Filtros | Blur, sharpen, brilho/contraste |
-| Pipeline | Combinação crop → resize → JPEG |
-
-## Features e classificador
-
-| Domínio (aula) | Features planejadas | O que capturam |
-|---|---|---|
-| **Frequência** | FFT / espectro de magnitude | Padrões que o JPEG tende a destruir |
-| **Espaço** | HOG, bordas (Sobel/Canny) | Gradientes e estrutura local |
-| **Valor / textura** | LBP, GLCM, histograma RGB/HSV | Textura e distribuição de intensidade |
-
-| Escopo | Descrição |
-|---|---|
-| **Mínimo** | 2 tipos de feature + **SVM** (ou kNN) |
-| **Recomendado** | Comparar robustez entre famílias de features (ex.: FFT vs HOG vs LBP) |
-| **Opcional** | Comparar visão clássica vs 1 CNN simples (tópico clássica vs DL da disciplina) |
-
-## Conexão com a disciplina
-
-| Conceito da aula | Onde aparece no trabalho |
-|---|---|
-| Domínio do valor | Histograma, LBP, GLCM |
-| Domínio do espaço | Convolução, HOG, bordas |
-| Domínio da frequência | FFT / DFT |
-| Métricas e classificadores | SVM, kNN, distância Euclidiana |
-| Reconhecimento de padrões | Análise de degradação do espaço de features |
-
-## Entregas
-
-Prazo final: **30/11/2026** (todas as entregas no mesmo dia) · Detalhes em [`Entregas.md`](Entregas.md)
-
-| # | Entrega | Formato | Tarefas |
-|---|---|---|---|
-| 1 | Relatório | PDF, 10–20 páginas (+ poster anexo) | [`tarefas/01-relatorio.md`](tarefas/01-relatorio.md) |
-| 2 | Código | ZIP do GitHub + modelos treinados (`.pkl`) | [`tarefas/02-codigo.md`](tarefas/02-codigo.md) |
-
-> O Moodle menciona "checkpoint de rede neural", mas como usamos **visão clássica**, enviem os modelos SVM/kNN salvos em `models/` (`.pkl`) e indiquem o caminho no README.
-| 3 | Slides | PPTX/ODP + Google Slides | [`tarefas/03-slides.md`](tarefas/03-slides.md) |
-| 4 | Vídeo | MP4 H.265 FHD + YouTube | [`tarefas/04-video.md`](tarefas/04-video.md) |
-| 5 | Poster | PDF A1, 2 colunas | [`tarefas/05-poster.md`](tarefas/05-poster.md) |
-
-Ordem recomendada de execução: **código → poster → slides → vídeo → relatório** (ver [`tarefas/README.md`](tarefas/README.md)).
-
-## Datas importantes
-
-| Data | Marco |
-|---|---|
-| 30/11/2026 | Entrega de **todas** as 5 atividades no Moodle (relatório, código, slides, vídeo e poster) |
-
-## Regras de IAGen
-
-Se usar IA generativa para código (Copilot, Cursor, ChatGPT etc.):
-
-- Declarar explicitamente o uso.
-- Informar qual ferramenta e quais prompts foram usados.
-- Explicar o código gerado para demonstrar compreensão.
-
-Registrar em `IAGEN.md` (criar quando aplicável).
-
-## Referências iniciais
-
-**Visão clássica e detecção:**
-- Gonzalez & Woods — *Digital Image Processing* (material da disciplina)
-- [Detecting Compressed AI-Generated Images via Phase Spectrum Robustness (CVPR 2026)](https://openaccess.thecvf.com/content/CVPR2026/html/Li_Detecting_Compressed_AI-Generated_Images_via_Phase_Spectrum_Robustness_CVPR_2026_paper.html) — inspiração para análise em frequência
-- [Bridging the Gap Between Ideal and Real-world Evaluation (ICCV 2025)](https://openaccess.thecvf.com/content/ICCV2025/html/Li_Bridging_the_Gap_Between_Ideal_and_Real-world_Evaluation_Benchmarking_AI-Generated_ICCV_2025_paper.html) — robustez a transformações
-
-**Comparação (opcional):**
-- [Raising the Bar of AI-generated Image Detection with CLIP (CVPR 2024)](https://openaccess.thecvf.com/content/CVPR2024W/WMF/papers/Cozzolino_Raising_the_Bar_of_AI-generated_Image_Detection_with_CLIP_CVPRW_2024_paper.pdf)
-
-## Estrutura prevista do repositório
+## Estrutura do repositório
 
 ```
 DeteccaoImagensSinteticas/
-├── data/              # datasets (não versionar arquivos grandes)
-├── src/
-│   ├── features/      # extratores clássicos (FFT, HOG, LBP...)
-│   ├── transforms/    # pipeline de transformações
-│   ├── classifier.py  # SVM / kNN
-│   └── evaluate.py    # métricas por transformação
-├── models/            # classificadores treinados (.pkl)
-├── notebooks/         # experimentos exploratórios
-├── results/           # métricas, gráficos, CSVs
-├── tarefas/           # checklist por entrega
-├── Entregas.md        # requisitos do Moodle
-├── IAGEN.md           # registro de uso de IA (se aplicável)
-└── README.md
+├── README.md
+├── requirements.txt
+├── run_app.sh              # sobe o app no .venv
+├── app.py                  # Streamlit (VerifAI)
+├── app/                    # inferência (detector)
+├── cod/                    # notebooks + pacote v3 + models
+├── base/                   # datasets (local; ver base/README.md)
+├── artigos/                # 1 pasta por entrega (.tex + .pdf + compilar.sh)
+├── docs/                   # entregas Moodle + checklists
+├── exemplos/               # screenshots ZeroGPT + HTMLs
+└── referencias/            # PDFs de papers
 ```
+
+| Pasta | Papel |
+|-------|--------|
+| `cod/` | Treino e features (`main_v3.ipynb`, `v3/`) |
+| `app/` + `app.py` | Interface Streamlit |
+| `base/` | Imagens de treino (não versionadas) |
+| `artigos/` | Relatórios LaTeX |
+| `docs/` | Entregas e tarefas |
+| `exemplos/` | Material exploratório |
+| `referencias/` | Artigos de apoio |
+
+## Pares REAL → JSON → IA
+
+```bash
+./run_pares.sh --limite 5    # teste
+./run_pares.sh               # 5k (retomável: Ctrl+C e rode de novo)
+```
+
+Docs: [`base/PARES_REAL_IA.md`](base/PARES_REAL_IA.md) · previews em `base/pares_preview/`.
+
+## Treino (v3) e app
+
+| Passo | Comando / arquivo |
+|-------|-------------------|
+| Bases | `base/README.md` (+ pares IA) |
+| Notebook | `cod/main_v3.ipynb` (kernel do `.venv`) |
+| Modelos | `cod/models/svm_v3_*.pkl` |
+| App | `./run_app.sh` |
+
+- Entrada: **imagem inteira** (letterbox 224; HOG 128).
+- Veredito do app: score da **Fusão**.
+- Faixa **40–60%** → inconclusivo.
+
+```bash
+python -m pip install -r requirements.txt
+./run_app.sh
+```
+
+## Artigos
+
+```bash
+cd artigos/entrega-02-revisao && ./compilar.sh
+```
+
+Detalhes: [`artigos/README.md`](artigos/README.md).
+
+## Entregas Moodle
+
+Prazo: **30/11/2026** · [`docs/entregas.md`](docs/entregas.md) · checklists em [`docs/tarefas/`](docs/tarefas/).
+
+| # | Entrega | Checklist |
+|---|---------|-----------|
+| 1 | Relatório | [`docs/tarefas/01-relatorio.md`](docs/tarefas/01-relatorio.md) |
+| 2 | Código | [`docs/tarefas/02-codigo.md`](docs/tarefas/02-codigo.md) |
+| 3 | Slides | [`docs/tarefas/03-slides.md`](docs/tarefas/03-slides.md) |
+| 4 | Vídeo | [`docs/tarefas/04-video.md`](docs/tarefas/04-video.md) |
+| 5 | Poster | [`docs/tarefas/05-poster.md`](docs/tarefas/05-poster.md) |
+
+## Abordagem
+
+Features clássicas → SVM → medir queda de acurácia por transformação (JPEG, crop, resize, blur, pipeline).
+
+Docs do código: [`cod/README.md`](cod/README.md) · [`cod/docs/explicacao-main.md`](cod/docs/explicacao-main.md).
+
+## Regras de IAGen
+
+Se usar Copilot/Cursor/ChatGPT: declarar ferramenta e prompts em `docs/iagen.md` (criar quando aplicável).

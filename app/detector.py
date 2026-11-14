@@ -1,4 +1,4 @@
-"""Inferência VerifAI: imagem inteira (letterbox) → SVM v3 social."""
+"""VerifAI — inferência: imagem inteira (letterbox) → SVM v3 (fusão)."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ import numpy as np
 from PIL import Image
 from sklearn.exceptions import InconsistentVersionWarning
 
-# Mesmo pré-processamento/features do treino (Cod/v3).
-_COD = Path(__file__).resolve().parents[1] / "Cod"
+# Mesmo pré-processamento/features do treino (cod/v3).
+_COD = Path(__file__).resolve().parents[1] / "cod"
 if str(_COD) not in sys.path:
     sys.path.insert(0, str(_COD))
 from v3.data import FEATURE_SIZE, letterbox_rgb  # noqa: E402
@@ -106,8 +106,8 @@ def _detect_model_prefix(model_dir: Path) -> str:
 def find_model_dir(root: Path) -> Path:
     candidates = (
         root / "models",
-        root / "Cod" / "models",
-        root.parent / "Processado" / root.name / "Cod" / "models",
+        root / "cod" / "models",
+        root.parent / "Processado" / root.name / "cod" / "models",
     )
     for directory in candidates:
         if (

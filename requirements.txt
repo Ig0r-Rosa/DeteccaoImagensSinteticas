@@ -10,4 +10,12 @@ matplotlib>=3.9,<4
 seaborn
 tqdm
 # Opcional (treino v3 na GPU). Se a instalação falhar, o notebook usa LinearSVC.
-# thundersvm
+# thundersvmtorch
+torchvision
+diffusers
+transformers
+accelerate
+safetensors
+controlnet-aux
+timm
+huggingface_hub

@@ -8,10 +8,10 @@ __pycache__/
 .ipynb_checkpoints/
 .streamlit/
 
-# Modelos e caches de features (pesados)
-Cod/models/
-Cod/local/
-Cod/results/
+# Modelos e caches (pesados)
+cod/models/
+cod/local/
+cod/results/
 *.pkl
 *.joblib
 *.npz
@@ -21,11 +21,12 @@ Cod/results/
 *.pt
 *.pth
 
-# Datasets (GBs) — mantém só o README da Base
-Base/**
-!Base/README.md
+# Datasets — mantém só docs da base
+base/**
+!base/README.md
+!base/PARES_REAL_IA.md
 
-# Downloads / arquivos compactados
+# Compactados
 *.zip
 *.tar
 *.tar.gz
@@ -33,7 +34,17 @@ Base/**
 *.7z
 *.rar
 
-# Builds opcionais
+# LaTeX (auxiliares; PDF fica versionado)
+artigos/**/*.aux
+artigos/**/*.bbl
+artigos/**/*.blg
+artigos/**/*.log
+artigos/**/*.out
+artigos/**/*.toc
+artigos/**/*.synctex.gz
+artigos/**/*.build.log
+
+# Builds
 **/thundersvm/build/
 **/build/
 *.so
@@ -45,8 +56,15 @@ Base/**
 .DS_Store
 Thumbs.db
 
-# Logs e temporários
+# Logs / temp
 *.log
 tmp/
 temp/
 .cache/
+
+# Pares gerados (pesados)
+base/pares_json/
+base/pares_ia/
+base/pares_preview/
+base/pares_estado.json
+base/landscape_real/

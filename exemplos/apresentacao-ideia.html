@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detecção de Imagens Sintéticas — Proposta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1976d2;
+      --primary-dark: #0d47a1;
+      --accent: #ff7043;
+      --surface: #ffffff;
+      --bg: #eceff1;
+      --text: #263238;
+      --muted: #607d8b;
+      --success: #2e7d32;
+      --danger: #c62828;
+      --warn: #ef6c00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .deck { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 64px;
+      background: var(--surface);
+      border-bottom: 4px solid var(--primary);
+    }
+
+    .slide:nth-child(even) { background: #f5f7fa; }
+
+    .content { max-width: 1180px; width: 100%; }
+
+    h1 { font-size: 2.6rem; font-weight: 700; color: var(--primary-dark); line-height: 1.2; }
+    h2 { font-size: 2rem; font-weight: 500; color: var(--primary); margin-bottom: 24px; }
+    h3 { font-size: 1.1rem; font-weight: 500; color: var(--primary-dark); margin-bottom: 8px; }
+
+    .subtitle { font-size: 1.25rem; color: var(--muted); margin-top: 12px; }
+    .tag { display: inline-block; background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; margin-top: 20px; }
+
+    ul { margin: 16px 0 0 24px; line-height: 1.7; }
+    li { margin-bottom: 6px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      border-left: 4px solid var(--primary);
+    }
+
+    .card.accent { border-left-color: var(--accent); }
+    .card.success { border-left-color: var(--success); }
+    .card.warn { border-left-color: var(--warn); }
+
+    .quote {
+      font-size: 1.35rem;
+      font-style: italic;
+      color: var(--primary-dark);
+      border-left: 5px solid var(--accent);
+      padding: 16px 24px;
+      background: #fff3e0;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.95rem; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #cfd8dc; }
+    th { background: var(--primary); color: white; font-weight: 500; }
+    tr:nth-child(even) { background: #f5f7fa; }
+
+    .img-box {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      background: #263238;
+    }
+
+    .img-box img { width: 100%; display: block; object-fit: contain; max-height: 340px; }
+
+    .caption { font-size: 0.85rem; color: var(--muted); margin-top: 8px; text-align: center; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .badge-danger { background: #ffcdd2; color: var(--danger); }
+    .badge-warn { background: #ffe0b2; color: var(--warn); }
+    .badge-success { background: #c8e6c9; color: var(--success); }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .flow-step {
+      background: var(--primary);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .flow-arrow { color: var(--accent); font-size: 1.4rem; font-weight: 700; }
+
+    .footer-note { position: fixed; bottom: 12px; right: 20px; font-size: 0.75rem; color: var(--muted); }
+    .nav-hint { position: fixed; bottom: 12px; left: 20px; font-size: 0.75rem; color: var(--muted); }
+
+    .title-slide { text-align: center; }
+    .title-slide h1 { font-size: 3rem; }
+    .authors { margin-top: 32px; font-size: 1.1rem; color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .slide { padding: 32px 24px; }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="footer-note">Visão Computacional · UFSC 2026.2</div>
+
+  <div class="deck">
+
+    <!-- SLIDE 1 — Capa -->
+    <section class="slide">
+      <div class="content title-slide">
+        <span class="tag">Trabalho Final · Visão Computacional</span>
+        <h1>Detecção de Imagens Sintéticas após Transformações</h1>
+        <p class="subtitle">Experimento de robustez com visão clássica</p>
+        <p class="authors">UFSC · INE410159 / TRV410001 · 2026.2</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 — Problema -->
+    <section class="slide">
+      <div class="content">
+        <h2>O problema</h2>
+        <div class="grid-2">
+          <div>
+            <ul>
+              <li>Imagens manipuladas ou geradas por IA circulam nas redes sociais</li>
+              <li>Antes de viralizar, passam por <strong>compressão, crop, filtros e screenshot</strong></li>
+              <li>Essas transformações <strong>apagam os padrões</strong> que detectores usam</li>
+              <li>Detectar só na imagem original <strong>não basta</strong></li>
+            </ul>
+            <div class="quote">Não queremos só "acertar real vs IA" — queremos saber <strong>quando e por quê</strong> o detector falha.</div>
+          </div>
+          <div class="card accent">
+            <h3>Motivação prática</h3>
+            <p style="margin-top:8px;line-height:1.6">Uma foto falsa ou editada compartilhada no WhatsApp ou Instagram raramente chega intacta. Nosso trabalho simula esse cenário de forma controlada.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 — Cenários reais -->
+    <section class="slide">
+      <div class="content">
+        <h2>Cenários reais que motivam o trabalho</h2>
+        <div class="grid-2">
+          <div class="card danger">
+            <h3>1. Política em período eleitoral</h3>
+            <ul style="margin-top:12px">
+              <li>Fotos de candidatos <strong>manipuladas ou geradas por IA</strong> circulam em redes sociais</li>
+              <li>Ex.: montagens, deepfakes, imagens fora de contexto</li>
+              <li>Compartilhadas via WhatsApp, Instagram, X — sempre <strong>recomprimidas e recortadas</strong></li>
+              <li>Impacto: desinformação visual influencia eleitores</li>
+            </ul>
+            <p class="caption" style="text-align:left;margin-top:12px">Desafio: detectar manipulação mesmo após repostagens e compressão</p>
+          </div>
+          <div class="card warn" style="border-left-color:#ef6c00">
+            <h3>2. Venda de imóveis</h3>
+            <ul style="margin-top:12px">
+              <li>Anúncios alteram fotos para o imóvel parecer <strong>mais atrativo</strong></li>
+              <li>Ex.: iluminação falsa, cores estouradas, remoção de rachaduras, cômodos "ampliados"</li>
+              <li>Comprador decide com base em imagem que <strong>não representa a realidade</strong></li>
+              <li>Impacto: fraude comercial e expectativa frustrada na visita</li>
+            </ul>
+            <p class="caption" style="text-align:left;margin-top:12px">Desafio: identificar edição mesmo com filtros "estéticos" aplicados</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:24px;border-left-color:var(--primary)">
+          <strong>Conexão com o projeto:</strong> em ambos os casos a imagem passa por transformações antes de chegar ao observador — exatamente o que vamos simular e medir no experimento.
+        </div>
+      </div>
+    </section>
+    
+     <!-- SLIDE 4 — Exemplo IA original -->
+    <section class="slide">
+      <div class="content">
+        <h2>Exemplo — Imagem gerada por IA</h2>
+        <div class="grid-2">
+          <div>
+            <div class="img-box"><img src="gerada_ia/Original.png" alt="Imagem original gerada por IA"></div>
+            <p class="caption">Original — gerada por IA</p>
+          </div>
+          <div>
+            <div class="img-box"><img src="gerada_ia/Teste1.png" alt="Detecção 99% falsa"></div>
+            <p class="caption">Sem transformação → detector online marca <span class="badge badge-danger">99% FALSA</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 — Degradação IA -->
+    <section class="slide">
+      <div class="content">
+        <h2>Exemplo — Transformações degradam a detecção</h2>
+        <p style="margin-bottom:16px">Mesma imagem IA após transformações progressivas (<code>gerada_ia/</code>):</p>
+        <div class="grid-3">
+          <div>
+            <div class="img-box"><img src="gerada_ia/Teste3.png" alt="93% falsa"></div>
+            <p class="caption"><span class="badge badge-danger">93% FALSA</span> — leve compressão</p>
+          </div>
+          <div>
+            <div class="img-box"><img src="gerada_ia/Teste4-FiltroQualidade.png" alt="63% falsa"></div>
+            <p class="caption"><span class="badge badge-warn">63% FALSA</span> — filtro de qualidade</p>
+          </div>
+          <div>
+            <div class="img-box"><img src="gerada_ia/Teste5-Filtro+Screenshots.png" alt="6% real"></div>
+            <p class="caption"><span class="badge badge-success">6% REAL</span> — filtro + screenshot · <strong>enganou!</strong></p>
+          </div>
+        </div>
+        <div class="card danger" style="margin-top:20px">
+          <strong>Insight:</strong> de 99% falsa → 6% real. Transformações comuns <em>destruem</em> os artefatos usados pelo detector.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 — Exemplo imagem real -->
+    <section class="slide">
+      <div class="content">
+        <h2>Exemplo — Imagem real editada</h2>
+        <div class="grid-3">
+          <div>
+            <div class="img-box"><img src="editada_ia/Original.png" alt="Foto real original"></div>
+            <p class="caption">Original — foto real de estúdio</p>
+          </div>
+          <div>
+            <div class="img-box"><img src="editada_ia/TesteReducaoReso.png" alt="Redução resolução 97% real"></div>
+            <p class="caption"><span class="badge badge-success">97% REAL</span> — redução de resolução</p>
+          </div>
+          <div>
+            <div class="img-box"><img src="editada_ia/TestePosTransformacao.png" alt="Pós transformação 99% falsa"></div>
+            <p class="caption"><span class="badge badge-danger">99% FALSA</span> — após transformação
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 — Visão clássica -->
+    <section class="slide">
+      <div class="content">
+        <h2>Por que visão clássica?</h2>
+        <div class="grid-2">
+          <table>
+            <tr><th>Conceito da disciplina</th><th>No nosso trabalho</th></tr>
+            <tr><td>Domínio do valor</td><td>Histograma, LBP, GLCM</td></tr>
+            <tr><td>Domínio do espaço</td><td>HOG, bordas (Sobel/Canny)</td></tr>
+            <tr><td>Domínio da frequência</td><td>FFT / espectro de magnitude</td></tr>
+            <tr><td>Métricas e classificadores</td><td>SVM, kNN, distância Euclidiana</td></tr>
+            <tr><td>Reconhecimento de padrões</td><td>Degradação do espaço de features</td></tr>
+          </table>
+          <div class="card success">
+            <h3>Vantagem acadêmica</h3>
+            <ul style="margin-top:12px">
+              <li>Dá para <strong>explicar</strong> cada passo (sem caixa-preta)</li>
+              <li>Conecta direto com as aulas de domínios e métricas</li>
+              <li>Permite comparar <em>qual padrão visual some</em> após cada transformação</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 — Features -->
+    <section class="slide">
+      <div class="content">
+        <h2>O que vamos usar</h2>
+        <div class="grid-2">
+          <div>
+            <h3>Extratores de features</h3>
+            <table>
+              <tr><th>Feature</th><th>Domínio</th><th>Sensível a</th></tr>
+              <tr><td>FFT (magnitude)</td><td>Frequência</td><td>JPEG, blur</td></tr>
+              <tr><td>HOG</td><td>Espaço</td><td>Crop, resize</td></tr>
+              <tr><td>LBP / GLCM</td><td>Textura</td><td>Blur, compressão</td></tr>
+              <tr><td>Histograma RGB/HSV</td><td>Valor</td><td>Brilho, contraste</td></tr>
+            </table>
+          </div>
+          <div>
+            <h3>Ferramentas</h3>
+            <ul>
+              <li><strong>OpenCV</strong> — convolução, bordas, I/O</li>
+              <li><strong>scikit-image</strong> — HOG, LBP, GLCM</li>
+              <li><strong>NumPy / SciPy</strong> — FFT</li>
+              <li><strong>scikit-learn</strong> — SVM, kNN, métricas</li>
+            </ul>
+            <h3 style="margin-top:20px">Transformações</h3>
+            <p>JPEG (90/70/50%), crop, resize, blur, sharpen, brilho/contraste, screenshot, pipeline combinado</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 — Fechamento -->
+    <section class="slide">
+      <div class="content title-slide">
+        <h2 style="color:var(--primary-dark);margin-bottom:24px">Resumo</h2>
+        <div class="grid-3" style="text-align:left">
+          <div class="card"><h3>Problema</h3><p>Detectores frágeis após transformações digitais</p></div>
+          <div class="card"><h3>Método</h3><p>Features clássicas + SVM + experimento sistemático</p></div>
+          <div class="card"><h3>Contribuição</h3><p>Medir e explicar degradação por tipo de feature</p></div>
+        </div>
+        <p style="margin-top:40px;font-size:1.3rem;color:var(--primary-dark)">Perguntas?</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
