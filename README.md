@@ -12,36 +12,42 @@ Avaliar a **robustez** de detectores de imagens geradas por IA quando essas imag
 
 Uma explicação didática, célula por célula, das técnicas, finalidades, limitações e formas de aumentar a acurácia está em [`Cod/EXPLICACAO_MAIN.md`](Cod/EXPLICACAO_MAIN.md).
 
+## Modelo v3 (Instagram AI + CelebA + cenas — sem CIFAKE)
+
+Notebook: [`Cod/main_v3_instagram.ipynb`](Cod/main_v3_instagram.ipynb)
+
+| Pasta | Conteúdo |
+|---|---|
+| `Base/instagram_ai/` | IA do [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/MGJPBL) |
+| `Base/celeba_real/` | REAL — [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) |
+| `Base/landscape_real/` | REAL cenas (LHQ / COCO / Open Images) — recomendado |
+| `Base/archive/` | CIFAKE — **não usada** no treino v3 atual |
+
+Treino (GPU RTX 3050 6GB):
+
+1. Organize as pastas sociais (ver `Base/README.md`).
+2. Abra `Cod/main_v3_instagram.ipynb` com `MODO = "forte"` ou `"completo"`.
+3. Imagem **inteira** com letterbox **224×224**; SVM RBF (ThunderSVM → sklearn).
+4. Saídas: `Cod/models/svm_v3_*.pkl`, `scaler_v3_*.pkl`.
+
 ## Aplicação interativa
 
-A interface Streamlit recebe uma imagem e executa uma análise multiescala com janelas
-sobrepostas. Recortes de 32 a 256 pixels são redimensionados para a entrada 32 × 32
-do modelo. Na escala 32 × 32, uma segunda grade deslocada 16 pixels valida os vãos
-horizontais, verticais e o encontro central entre quatro blocos. Todas as previsões
-são combinadas em um mapa de calor. A probabilidade global identifica componentes
-conectados acima de um limiar adaptativo e combina a intensidade e a extensão da
-região mais forte com a média geral. A interface mostra a média simples, o limiar e
-os contornos das regiões para permitir a auditoria do resultado.
+Uma passagem na **foto toda** (letterbox 224×224, mesma proporção — sem grid).
+O veredito é o score da **Fusão**.
+Entre **40% e 60%** o resultado fica **inconclusivo**.
 
-1. Execute o treinamento e a persistência dos modelos no notebook `Cod/main.ipynb`.
-2. Confirme que `Cod/models/` contém `svm_fusion.pkl` e os scalers de FFT, HOG e LBP.
-   A aplicação também encontra automaticamente os artefatos robustos e a cópia irmã em
-   `../Processado/DeteccaoImagensSinteticas/Cod/models/`, quando disponível.
-3. Instale e inicie a aplicação:
+> Modelos antigos (32×32 / CIFAKE) **não servem** — retreine no notebook.
+
+1. Preferência de modelos: **`svm_v3_*`** → `svm_robusto_*` → `svm_fusion.pkl`.
+2. Confirme que `Cod/models/` tem o conjunto desejado.
+3. Instale e inicie:
 
 ```bash
 python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Os modelos atuais foram persistidos com scikit-learn 1.4.2. Para máxima
-reprodutibilidade, use a mesma versão; arquivos `joblib` devem ser carregados somente
-quando sua origem for confiável.
-
-O treinamento atual usa `SVC` sem calibração probabilística. Nesse caso, a interface
-converte a distância à fronteira por uma função sigmoide e informa explicitamente que
-o percentual é uma estimativa de confiança. Para probabilidades calibradas, retreine
-com calibração (`CalibratedClassifierCV`) sobre um conjunto de validação separado.
+Arquivos `joblib` devem ser carregados somente quando a origem for confiável.
 
 ## Pergunta de pesquisa
 

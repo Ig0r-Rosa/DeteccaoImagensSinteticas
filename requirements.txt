@@ -7,3 +7,7 @@ scikit-learn>=1.4.2,<2
 joblib>=1.4,<2
 pandas>=2.2,<3
 matplotlib>=3.9,<4
+seaborn
+tqdm
+# Opcional (treino v3 na GPU). Se a instalação falhar, o notebook usa LinearSVC.
+# thundersvm

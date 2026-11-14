@@ -1,6 +1,52 @@
-Cod/local/
-Cod/models/
-Cod/results/
+# Ambientes
+.venv/
+venv/
+.env
 __pycache__/
 *.py[cod]
+*$py.class
+.ipynb_checkpoints/
 .streamlit/
+
+# Modelos e caches de features (pesados)
+Cod/models/
+Cod/local/
+Cod/results/
+*.pkl
+*.joblib
+*.npz
+*.npy
+*.h5
+*.onnx
+*.pt
+*.pth
+
+# Datasets (GBs) — mantém só o README da Base
+Base/**
+!Base/README.md
+
+# Downloads / arquivos compactados
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# Builds opcionais
+**/thundersvm/build/
+**/build/
+*.so
+*.o
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs e temporários
+*.log
+tmp/
+temp/
+.cache/
