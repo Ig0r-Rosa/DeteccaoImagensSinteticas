@@ -1,48 +1,25 @@
-# Pares REAL × IA (com retomada)
+# Pares REAL × IA — concluído
 
-```
-foto REAL  →  JSON (BLIP)  →  imagem IA (SD1.5 + ControlNet Depth)
-```
+5 000 pares gerados (REAL → JSON → IA com ControlNet Depth).
 
 ## Pastas
 
 | Pasta | Conteúdo |
 |-------|----------|
-| `base/landscape_real/` | Fotos REAL (fonte) |
-| `base/pares_json/` | JSON/prompt por imagem |
-| `base/pares_ia/` | Versão IA (mesmo stem) |
-| `base/pares_preview/` | REAL\|IA lado a lado (amostra) |
-| `base/pares_estado.json` | Progresso / erros |
+| `landscape_real/` | REAL |
+| `pares_ia/` | FAKE pareada |
+| `pares_json/` | JSON/prompt (opcional) |
+| `pares_preview/` | Comparativos |
 
-## Retomada
+## Download
 
-- Se o `.json` já existe → pula caption.
-- Se o `.jpg` em `pares_ia/` já existe → pula geração.
-- Pode dar Ctrl+C e rodar de novo: **continua de onde parou**.
+https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=sharing
 
-## Comandos
+## Treino
 
-```bash
-# Teste (5 imagens)
-./run_pares.sh --limite 5
+Use `cod/main_v3.ipynb`:
 
-# Batch completo (retomável)
-./run_pares.sh
+1. `MODO = "avaliacao"` → 4000/1000  
+2. `MODO = "app"` → 5000 no treino (teste no VerifAI)
 
-# Só JSON ou só IA
-./run_pares.sh --so-caption
-./run_pares.sh --so-gerar
-```
-
-## Modelos locais
-
-| Etapa | Modelo |
-|-------|--------|
-| Caption | `Salesforce/blip-image-captioning-large` |
-| Geração | `sd-legacy/stable-diffusion-v1-5` + `lllyasviel/sd-controlnet-depth` |
-
-Baixados automaticamente na 1ª execução (cache Hugging Face).
-
-## Hardware
-
-RTX 3050 6GB · resolução 512×512 · ~20 steps. Demora por imagem; as 5k levam **muitas horas**.
+Ferramentas de geração (torch/diffusers/BLIP) foram removidas do `.venv` após concluir esta etapa.

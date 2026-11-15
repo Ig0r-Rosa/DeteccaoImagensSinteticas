@@ -37,21 +37,25 @@ DeteccaoImagensSinteticas/
 | `exemplos/` | Material exploratório |
 | `referencias/` | Artigos de apoio |
 
-## Pares REAL → JSON → IA
+## Bases (pares REAL × IA)
 
-```bash
-./run_pares.sh --limite 5    # teste
-./run_pares.sh               # 5k (retomável: Ctrl+C e rode de novo)
-```
+Download (Drive):  
+https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=sharing
 
-Docs: [`base/PARES_REAL_IA.md`](base/PARES_REAL_IA.md) · previews em `base/pares_preview/`.
+| Pasta | Papel |
+|-------|--------|
+| `base/landscape_real/` | REAL (5k) |
+| `base/pares_ia/` | FAKE pareada (5k) |
+
+Detalhes: [`base/README.md`](base/README.md).
 
 ## Treino (v3) e app
 
 | Passo | Comando / arquivo |
 |-------|-------------------|
-| Bases | `base/README.md` (+ pares IA) |
+| Bases | Drive acima → `base/` |
 | Notebook | `cod/main_v3.ipynb` (kernel do `.venv`) |
+| Modos | `avaliacao` = 4000/1000 · `app` = 5000 (teste no app) |
 | Modelos | `cod/models/svm_v3_*.pkl` |
 | App | `./run_app.sh` |
 

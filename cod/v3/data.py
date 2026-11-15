@@ -1,4 +1,4 @@
-"""Dados v3: carrega FAKE (instagram_ai) + REAL (landscape_real); letterbox; splits."""
+"""Dados v3: pares REAL (landscape_real) × FAKE (pares_ia); letterbox; splits."""
 
 from __future__ import annotations
 
@@ -28,6 +28,27 @@ def listar_pasta_plana(pasta: Path, rotulo: int) -> tuple[list[str], list[int]]:
             caminhos.append(str(arquivo))
             rotulos.append(rotulo)
     return caminhos, rotulos
+
+
+def _indice_por_stem(pasta: Path) -> dict[str, Path]:
+    """Mapeia stem → caminho (primeira extensão encontrada)."""
+    mapa: dict[str, Path] = {}
+    if not pasta.exists():
+        return mapa
+    for arquivo in sorted(pasta.iterdir()):
+        if not arquivo.is_file() or arquivo.suffix.lower() not in EXTENSOES:
+            continue
+        if arquivo.name.lower().startswith("readme"):
+            continue
+        mapa.setdefault(arquivo.stem, arquivo)
+    return mapa
+
+
+def listar_stems_pareados(base_dir: Path) -> list[str]:
+    """Stems presentes em landscape_real e pares_ia (mesmo nome = par)."""
+    reais = _indice_por_stem(base_dir / "landscape_real")
+    fakes = _indice_por_stem(base_dir / "pares_ia")
+    return sorted(set(reais) & set(fakes))
 
 
 def juntar_fontes(*pares: tuple[list[str], list[int]]) -> tuple[list[str], list[int]]:
@@ -77,7 +98,9 @@ def criar_subconjunto(
     quantidade_por_classe: int,
     seed: int = 42,
 ) -> tuple[list[str], list[int]]:
-    """Amostra balanceada por classe (Instagram AI × fotos reais)."""
+    """Amostra balanceada por classe."""
+    if quantidade_por_classe <= 0 or not caminhos:
+        return [], []
     rng = np.random.default_rng(seed)
     escolhidos: list[int] = []
     for classe in (FAKE, REAL):
@@ -86,7 +109,7 @@ def criar_subconjunto(
         escolhidos.extend(_amostrar_indices(idx_classe, n_alvo, rng))
     if not escolhidos:
         raise ValueError(
-            "Subconjunto vazio. Confira base/instagram_ai e base/landscape_real."
+            "Subconjunto vazio. Confira base/landscape_real e base/pares_ia."
         )
     rng.shuffle(escolhidos)
     return [caminhos[i] for i in escolhidos], [rotulos[i] for i in escolhidos]
@@ -164,27 +187,86 @@ def resumo_rotulos(rotulos: list[int]) -> str:
 
 
 def avisar_qualidade_bases(meta: dict[str, int]) -> list[str]:
-    """Alertas: FAKE Instagram + REAL diversa (ex. COCO) em landscape_real."""
+    """Alertas para pares REAL × IA."""
     avisos: list[str] = []
-    if meta.get("instagram_ai", 0) == 0:
-        avisos.append("base/instagram_ai vazia — falta FAKE de rede social.")
-    if meta.get("landscape_real", 0) == 0:
+    if meta.get("pares", 0) == 0:
         avisos.append(
-            "base/landscape_real vazia — coloque fotos REAIS (ex. COCO 2017). "
-            "Ver base/README.md."
+            "Nenhum par encontrado. Precisa de base/landscape_real + base/pares_ia "
+            "com o mesmo nome de arquivo."
         )
-    elif meta.get("landscape_real", 0) < 5000:
-        avisos.append(
-            f"Poucas REAL ({meta['landscape_real']}). "
-            "Ideal ~mesmo volume do Instagram AI (~50–60k)."
-        )
-    n_fake, n_real = meta.get("instagram_ai", 0), meta.get("landscape_real", 0)
-    if n_fake > 0 and n_real > 0 and n_real < 0.4 * n_fake:
-        avisos.append(
-            f"Desbalanceado: FAKE={n_fake} REAL={n_real}. "
-            "Aumente landscape_real para ficar perto do número de FAKE."
-        )
+    elif meta.get("pares", 0) < 1000:
+        avisos.append(f"Poucos pares ({meta['pares']}). Ideal ~5k.")
     return avisos
+
+
+def carregar_datasets_pares(
+    base_dir: Path,
+    seed: int = 42,
+    n_treino: int = 4000,
+    n_teste: int = 1000,
+) -> tuple[list[str], list[int], list[str], list[int], dict[str, int]]:
+    """Carrega pares alinhados: REAL=landscape_real, FAKE=pares_ia (mesmo stem).
+
+    O split é por *par* (stem): o REAL e o FAKE do mesmo stem ficam no mesmo split.
+    n_teste=0 → treino com todos os pares; teste vazio (avaliação só no app).
+    """
+    reais = _indice_por_stem(base_dir / "landscape_real")
+    fakes = _indice_por_stem(base_dir / "pares_ia")
+    stems = sorted(set(reais) & set(fakes))
+    if not stems:
+        raise ValueError(
+            "Nenhum par REAL×IA. Confira base/landscape_real e base/pares_ia."
+        )
+
+    rng = np.random.default_rng(seed)
+    ordem = list(stems)
+    rng.shuffle(ordem)
+
+    n_teste = max(0, int(n_teste))
+    n_treino = max(0, int(n_treino))
+    if n_teste == 0:
+        # Modo app: usa até n_treino pares (ou todos se n_treino >= pool).
+        n_tr = min(n_treino, len(ordem)) if n_treino else len(ordem)
+        stems_tr, stems_te = ordem[:n_tr], []
+    else:
+        n_te = min(n_teste, len(ordem) - 1) if len(ordem) > 1 else 0
+        n_tr = min(n_treino, len(ordem) - n_te)
+        stems_te = ordem[:n_te]
+        stems_tr = ordem[n_te : n_te + n_tr]
+
+    def _montar(stems_sel: list[str]) -> tuple[list[str], list[int]]:
+        c, y = [], []
+        for stem in stems_sel:
+            c.append(str(fakes[stem]))
+            y.append(FAKE)
+            c.append(str(reais[stem]))
+            y.append(REAL)
+        return c, y
+
+    train_c, train_y = _montar(stems_tr)
+    test_c, test_y = _montar(stems_te)
+
+    # Embaralha amostras (mantém balanceamento).
+    if train_c:
+        perm = rng.permutation(len(train_c))
+        train_c = [train_c[i] for i in perm]
+        train_y = [train_y[i] for i in perm]
+    if test_c:
+        perm = rng.permutation(len(test_c))
+        test_c = [test_c[i] for i in perm]
+        test_y = [test_y[i] for i in perm]
+
+    meta = {
+        "pares": len(stems),
+        "pares_treino": len(stems_tr),
+        "pares_teste": len(stems_te),
+        "landscape_real": len(reais),
+        "pares_ia": len(fakes),
+        "train_total": len(train_c),
+        "test_total": len(test_c),
+        "feature_size": FEATURE_SIZE,
+    }
+    return train_c, train_y, test_c, test_y, meta
 
 
 def carregar_datasets_mistos(
@@ -192,35 +274,11 @@ def carregar_datasets_mistos(
     seed: int = 42,
     frac_holdout: float = 0.15,
 ) -> tuple[list[str], list[int], list[str], list[int], dict[str, int]]:
-    """Treino/teste: Instagram AI (FAKE) + landscape_real (REAL). Sem CelebA/CIFAKE."""
-    insta = listar_pasta_plana(base_dir / "instagram_ai", FAKE)
-    reais = listar_pasta_plana(base_dir / "landscape_real", REAL)
-    todos = juntar_fontes(insta, reais)
-
-    if len(todos[0]) == 0:
-        raise ValueError(
-            "Nenhuma imagem encontrada. "
-            "Preencha base/instagram_ai e base/landscape_real."
-        )
-
-    if frac_holdout and frac_holdout > 0:
-        train_c, train_y, test_c, test_y = split_holdout(
-            *todos, frac_teste=frac_holdout, seed=seed
-        )
-    else:
-        train_c, train_y = todos
-        test_c, test_y = [], []
-
-    meta = {
-        "cifake_train": 0,
-        "cifake_test": 0,
-        "instagram_ai": len(insta[0]),
-        "celeba_real": 0,
-        "landscape_real": len(reais[0]),
-        "externo_train": len(train_c),
-        "externo_test": len(test_c),
-        "train_total": len(train_c),
-        "test_total": len(test_c),
-        "feature_size": FEATURE_SIZE,
-    }
-    return train_c, train_y, test_c, test_y, meta
+    """Compat: delega aos pares (holdout ~frac por par)."""
+    stems = listar_stems_pareados(base_dir)
+    n = len(stems)
+    n_teste = int(round(n * frac_holdout)) if frac_holdout and n else 0
+    n_treino = max(0, n - n_teste)
+    return carregar_datasets_pares(
+        base_dir, seed=seed, n_treino=n_treino, n_teste=n_teste
+    )

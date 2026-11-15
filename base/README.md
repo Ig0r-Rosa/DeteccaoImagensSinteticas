@@ -1,38 +1,37 @@
 # Bases de dados (só local — não versionadas no git)
 
+## Download (Drive)
+
+Pacote com as bases do treino v3 (pares REAL × IA):
+
+https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=sharing
+
+Extraia em `base/` mantendo as pastas abaixo.
+
 ## Organização
 
 ```
 base/
 ├── README.md
-├── PARES_REAL_IA.md   ← ideia: REAL → JSON → IA (pares alinhados)
-├── instagram_ai/      ← FAKE (~60k) — IA estilo rede social (Harvard)
-└── landscape_real/    ← REAL — 5k fotos COCO (amostra válida)
+├── PARES_REAL_IA.md
+├── landscape_real/   ← REAL (5k)
+├── pares_ia/         ← FAKE (5k, mesma cena/pose)
+├── pares_json/       ← prompts (opcional)
+└── pares_preview/    ← amostras REAL|IA (opcional)
 ```
 
 | Pasta | Rótulo | Papel |
 |-------|--------|-------|
-| `instagram_ai/` | FAKE (0) | IA (Harvard Dataverse) |
-| `landscape_real/` | REAL (1) | 5k fotos reais (amostra do COCO 2017) |
+| `landscape_real/` | REAL (1) | Fotos reais (amostra COCO) |
+| `pares_ia/` | FAKE (0) | IA gerada pareada (mesmo nome) |
 
-> **CelebA / CIFAKE** não entram no treino v3.
+Mesmo nome de arquivo (`00042.jpg`) = **par alinhado**.
 
-## REAL atual
+## Treino no notebook
 
-- **5 000** JPGs aleatórias, legíveis, em `landscape_real/` (plana).
-- Origem: COCO 2017 `train2017` (resto removido para economizar disco).
+| Modo | Treino | Teste |
+|------|--------|-------|
+| `avaliacao` | 4000 pares | 1000 pares |
+| `app` | 5000 pares | só no app |
 
-## Próximo passo (recomendado)
-
-Gerar **pares IA** com a mesma cena/pose a partir dessas 5k — ver **`PARES_REAL_IA.md`**.
-
-Stack local: **ComfyUI + Florence-2 + FLUX Nunchaku (INT4) + ControlNet Depth**.
-
-## FAKE — Harvard Dataverse
-
-- https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/MGJPBL  
-- Pasta: `base/instagram_ai/`
-
-## Alternativa in-the-wild (aguardando acesso)
-
-- [ITW-SM](https://huggingface.co/datasets/dkarageo/itw-sm) — 5k REAL + 5k IA já de Instagram/FB/X/LinkedIn.
+Arquivo: `cod/main_v3.ipynb` · tag de cache `v3pares`.
