@@ -1,30 +1,18 @@
-# Artigos
-
-Cada entrega fica em **uma pasta**. Na raiz da pasta só entram o fonte, o PDF e o script de build.
-
-```
-artigos/
-├── entrega-01/
-│   ├── main.tex
-│   ├── main.pdf
-│   ├── compilar.sh
-│   ├── configs/      ← .sty .bst .bib
-│   └── suporte/      ← imagens/HTML auxiliares
-├── entrega-02/
-└── entrega-02-revisao/
-```
+# Artigos e entregas
 
 | Pasta | Conteúdo |
 |-------|----------|
-| `entrega-01/` | Relatório / artigo inicial |
+| `entrega-01/` | Artigo / checkpoint inicial |
 | `entrega-02/` | Segunda versão |
 | `entrega-02-revisao/` | Revisão da entrega 02 |
+| **`entrega-relatorio/`** | **Relatório final Moodle (10–20 p.) + poster** |
 
-## Compilar
+## Relatório atual
 
 ```bash
-cd artigos/entrega-02-revisao
+cd artigos/entrega-relatorio
 ./compilar.sh
 ```
 
-Gera/atualiza `main.pdf` e limpa `.aux`, `.log`, etc.
+Links pendentes: editar `entrega-relatorio/configs/links.tex`.
+Poster: copiar PDF para `entrega-relatorio/anexos/poster.pdf`.

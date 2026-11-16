@@ -1,0 +1,5 @@
+feature,backend,n_treino,acc,prec_fake,rec_real,tempo_s
+FFT,thundersvm-rbf,48000,0.7500,0.799,0.832,26.8
+HOG,thundersvm-rbf,48000,0.8440,0.887,0.899,63.7
+LBP,thundersvm-rbf,48000,0.8230,0.860,0.874,22.2
+FUSION,thundersvm-rbf,48000,0.8815,0.865,0.859,72.5
