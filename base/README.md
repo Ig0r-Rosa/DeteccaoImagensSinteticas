@@ -16,6 +16,7 @@ base/
 ├── PARES_REAL_IA.md
 ├── landscape_real/   ← REAL (5k)
 ├── pares_ia/         ← FAKE (5k, mesma cena/pose)
+├── teste_app/        ← 5 REAL + 5 IA × 6 variantes (teste manual no app)
 ├── pares_json/       ← prompts (opcional)
 └── pares_preview/    ← amostras REAL|IA (opcional)
 ```
