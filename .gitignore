@@ -9,9 +9,7 @@ __pycache__/
 .streamlit/
 
 # Modelos e caches (pesados)
-cod/models/
 cod/local/
-cod/results/
 *.pkl
 *.joblib
 *.npz

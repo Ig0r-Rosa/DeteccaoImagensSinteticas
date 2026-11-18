@@ -25,11 +25,11 @@ Araranguá, SC
 \maketitle
 
 \begin{abstract}
-This work studies how classical computer vision methods behave when detecting AI-generated images that go through common digital transformations, such as JPEG compression, crop, resize and blur. Frequency, spatial and texture descriptors (FFT, HOG and LBP) are reviewed, together with SVM, $k$-NN and convolutional networks. An RBF SVM is then trained on original CIFAKE images and evaluated on transformed versions, measuring the drop in accuracy for each transformation and each type of feature.
+This work studies how classical computer vision methods behave when detecting AI-generated images that go through common digital transformations, such as JPEG compression, crop, resize and blur. Frequency, spatial and texture descriptors (FFT, HOG and LBP) are reviewed, together with SVM, $k$-NN and convolutional networks. Two training protocols are compared. Training only on original CIFAKE images yields 92.04\% fusion accuracy on the clean test, but the detector collapses to about 54\% after crop, blur or a combined pipeline --- repeating the ZeroGPT failure. Including the nine transforms in training trades some clean-test accuracy (86.08\%) for robustness: fusion remains above 71\% after the same pipeline.
 \end{abstract}
 
 \begin{resumo}
-Este trabalho estuda como métodos clássicos de visão computacional se comportam ao detectar imagens geradas por IA depois de transformações digitais comuns, como compressão JPEG, crop, resize e blur. Revisam-se descritores de frequência, espaço e textura (FFT, HOG e LBP) e os classificadores SVM, $k$-NN e redes convolucionais. Em seguida, um SVM com kernel RBF é treinado em imagens originais do CIFAKE e avaliado nas versões transformadas, medindo-se a queda de acurácia por transformação e por tipo de feature.
+Este trabalho estuda como métodos clássicos de visão computacional se comportam ao detectar imagens geradas por IA depois de transformações digitais comuns, como compressão JPEG, crop, resize e blur. Revisam-se descritores de frequência, espaço e textura (FFT, HOG e LBP) e os classificadores SVM, $k$-NN e redes convolucionais. Comparam-se dois protocolos de treino. Treinar só nas originais do CIFAKE rende 92,04\% de fusão no teste limpo, mas o detector cai para cerca de 54\% após crop, blur ou o pipeline combinado --- o mesmo tipo de falha observado no ZeroGPT. Incluir as nove transformações no treino reduz a acurácia no original para 86,08\% e mantém a fusão acima de 71\% após o mesmo pipeline.
 \end{resumo}
 
 %----------------------------------------------------------------------
@@ -38,7 +38,7 @@ Este trabalho estuda como métodos clássicos de visão computacional se comport
 
 Hoje é fácil gerar imagens realistas com inteligência artificial, o que dificulta saber se uma foto é verdadeira ou criada por um modelo. Em situações práticas --- como posts em redes sociais em período eleitoral ou anúncios de imóveis --- essas imagens quase nunca chegam intactas: passam por compressão, corte, redimensionamento e filtros. Essas mudanças podem enfraquecer os sinais que os detectores usam para reconhecer conteúdo sintético.
 
-A pergunta deste trabalho é: \emph{quão bem detectores baseados em features clássicas continuam funcionando quando a imagem sofre transformações típicas da internet?} Em vez de só classificar ``real versus IA'' em imagens limpas, o foco é um teste de robustez: treinar o classificador com imagens sem transformação e depois medir o quanto o desempenho cai com cada alteração.
+A pergunta deste trabalho é: \emph{quão bem detectores baseados em features clássicas continuam funcionando quando a imagem sofre transformações típicas da internet?} Em vez de só classificar ``real versus IA'' em imagens limpas, o foco é um teste de robustez em dois passos: primeiro treinar só no original e medir a queda --- o mesmo tipo de falha do ZeroGPT ---; depois treinar também com as transformações e verificar se o detector deixa de colapsar.
 
 Um teste inicial com o site ZeroGPT\footnote{\url{https://www.zerogpt.com/pt/ai-image-detector}} ajuda a ilustrar o problema. Partindo de uma foto real de estúdio, pediu-se a uma IA para mudar a cena (mantendo a pessoa). O ZeroGPT marcou a imagem editada como cerca de 99\% falsa. Depois, apenas comprimindo essa mesma imagem, o resultado passou para cerca de 97\% real --- ou seja, a manipulação deixou de ser detectada (Figura~\ref{fig:zerogpt-editada}).
 
@@ -50,8 +50,6 @@ Um teste inicial com o site ZeroGPT\footnote{\url{https://www.zerogpt.com/pt/ai-
 \caption{Resultados do ZeroGPT. À esquerda: foto real com cena alterada por IA ($\approx$99\% falsa). À direita: a mesma imagem após compressão ($\approx$97\% real), mostrando que o detector falhou.}
 \label{fig:zerogpt-editada}
 \end{figure}
-
-Este artigo complementa a proposta inicial. Além do problema e da literatura, descreve as técnicas e os algoritmos estudados (Seção~\ref{sec:fundamentacao}) e, na Seção~\ref{sec:desenvolvimento}, a justificativa da técnica selecionada, a perspectiva de uso no problema de robustez e a metodologia experimental.
 
 %----------------------------------------------------------------------
 \section{Trabalhos Relacionados}
@@ -126,7 +124,7 @@ Redes convolucionais aprendem filtros e alcançam acurácia elevada no CIFAKE~\c
 \label{sec:desenvolvimento}
 %----------------------------------------------------------------------
 
-A partir das técnicas da Seção~\ref{sec:fundamentacao}, esta seção apresenta a técnica selecionada, a justificativa da escolha, a perspectiva de utilização no problema de robustez e a metodologia do experimento. O fluxo geral está na Figura~\ref{fig:fluxo}.
+A partir das técnicas da Seção~\ref{sec:fundamentacao}, esta seção apresenta a técnica selecionada, a justificativa da escolha, a perspectiva de utilização no problema de robustez e a metodologia do experimento. O fluxo geral está na Figura~\ref{fig:fluxo}. Os números de treino e teste constam da Seção~\ref{sec:resultados}.
 
 \begin{figure}[ht]
 \centering
@@ -140,8 +138,8 @@ A partir das técnicas da Seção~\ref{sec:fundamentacao}, esta seção apresent
 ]
   \node[box, fill=gray!15] (d) {CIFAKE\\real / fake};
   \node[box, below=of d] (f) {Extrair FFT,\\HOG e LBP};
-  \node[box, below=of f] (t) {Treinar SVM RBF\\(imagens originais)};
-  \node[box, below=of t] (x) {Aplicar\\transformações};
+  \node[box, below=of f] (t) {Treinar SVM RBF\\(só originais)};
+  \node[box, below=of t] (x) {Testar após\\transformações};
   \node[box, below=of x] (e) {Medir acurácia\\por feature};
   \node[dec, below=0.65cm of e] (q) {Resultado\\aceitável?};
   \node[box, below left=0.75cm and 0.05cm of q, fill=green!12] (ok) {Analisar e\\relatar};
@@ -156,7 +154,7 @@ A partir das técnicas da Seção~\ref{sec:fundamentacao}, esta seção apresent
   \draw[arr] (q) -- node[right, font=\scriptsize] {não} (aj);
   \draw[arr] (aj.east) -- ++(0.5,0) |- (f.east);
 \end{tikzpicture}
-\caption{Fluxograma do projeto no CIFAKE: treino com imagens originais, teste após transformações e ajuste se a robustez for baixa.}
+\caption{Fluxograma no CIFAKE: a primeira versão treina só no original; se a robustez for baixa, o ajuste inclui as transformações no treino.}
 \label{fig:fluxo}
 \end{figure}
 
@@ -172,7 +170,11 @@ GLCM, histograma de cor e DCT foram estudados~\cite{nirob2026handcrafted,gonzale
 
 \subsection{Perspectiva de utilização no problema}
 
-O problema específico não se reduz a classificar uma imagem intacta. Interessa saber se o detector permanece eficaz depois que a imagem circula em redes sociais, ou seja, depois de compressão, recorte, redimensionamento e filtros. Nessa perspectiva, o SVM \emph{não} é treinado em imagens transformadas. A fronteira real/sintético é aprendida apenas nas originais do CIFAKE e permanece fixa na avaliação. O que se altera é o conjunto de teste: as mesmas imagens sofrem JPEG, crop, resize, blur e um pipeline combinado. A quantidade de interesse é a \emph{queda} de acurácia --- diferença entre o baseline (teste original) e o acerto após cada transformação --- desagregada por tipo de feature.
+O problema específico não se reduz a classificar uma imagem intacta. Interessa saber se o detector permanece eficaz depois que a imagem circula em redes sociais, ou seja, depois de compressão, recorte, redimensionamento e filtros. Dois protocolos respondem a essa pergunta.
+
+No primeiro, o SVM \emph{não} é treinado em imagens transformadas. A fronteira real/sintético é aprendida apenas nas originais do CIFAKE e permanece fixa na avaliação. O que se altera é o conjunto de teste. Esse desenho mede a \emph{queda} de acurácia e reproduz, de forma controlada, a falha do ZeroGPT: um detector que acerta a imagem limpa e deixa de detectar depois de uma transformação banal.
+
+Quando essa queda se mostra inaceitável, o segundo protocolo inclui as nove transformações no treino, todas com o mesmo rótulo real/sintético. A fronteira passa a ver JPEG, crop, resize, blur e o pipeline já no treino, o que se aproxima do uso prático. A avaliação continua sem retreino: as mesmas imagens de teste são apresentadas intactas e após cada transformação.
 
 Essa leitura associa cada descritor a um mecanismo de degradação esperado:
 
@@ -182,13 +184,15 @@ Essa leitura associa cada descritor a um mecanismo de degradação esperado:
 \item blur e compressão forte perturbam a vizinhança dos pixels e devem afetar o LBP~\cite{ojala2002lbp}.
 \end{itemize}
 
-A fusão corresponde ao detector de uso prático, destinado a uma imagem qualquer. FFT, HOG e LBP isolados permanecem no experimento para localizar \emph{onde} a robustez se perde. Se a acurácia da fusão no original for insuficiente, ajustam-se descritores ou hiperparâmetros e o ciclo da Figura~\ref{fig:fluxo} se repete. Resultados preliminares da fusão no teste original situam a acurácia na ordem de 92\%, o que sustenta o desenho escolhido e desloca a ênfase para a análise de robustez.
+A fusão corresponde ao detector de uso prático, destinado a uma imagem qualquer. FFT, HOG e LBP isolados permanecem no experimento para localizar \emph{onde} a robustez se perde. Se a acurácia da fusão for insuficiente, ajustam-se descritores ou hiperparâmetros e o ciclo da Figura~\ref{fig:fluxo} se repete. Os resultados dessa avaliação constam da Seção~\ref{sec:resultados}.
 
 A mesma cadeia --- extração dos três descritores, fusão e SVM já treinado --- admite, como desdobramento, uma ferramenta de inspeção que recebe uma imagem e devolve um escore de probabilidade de conteúdo sintético, inclusive após as transformações do protocolo.
 
 \subsection{Metodologia}
 
-O experimento emprega o CIFAKE~\cite{bird2024cifake} na divisão original: 100 mil imagens de treino e 20 mil de teste, resolução $32{\times}32$, classes balanceadas (reais provenientes do CIFAR-10 e sintéticas geradas por Stable Diffusion). Não há coleta própria. Os exemplos do ZeroGPT (Figura~\ref{fig:zerogpt-editada}) não participam do cálculo das métricas; servem apenas para motivar o problema. Imagens de geradores contemporâneos podem ser examinadas de forma complementar, sem substituir o CIFAKE.
+O experimento emprega o CIFAKE~\cite{bird2024cifake} na divisão original, resolução $32{\times}32$, classes balanceadas (reais provenientes do CIFAR-10 e sintéticas geradas por Stable Diffusion). Não há coleta própria. Os exemplos do ZeroGPT (Figura~\ref{fig:zerogpt-editada}) não participam do cálculo das métricas; servem apenas para motivar o problema. O teste é o CIFAKE completo: 20 mil imagens, em ambos os protocolos.
+
+Na versão~1, o SVM treina em 100 mil imagens originais. Na versão~2, utilizam-se 5 mil imagens por classe (10 mil imagens-base); cada uma gera 10 amostras --- original mais as nove transformações --- totalizando também 100 mil exemplos. O volume de treino permanece comparável; o que muda é a presença das variantes digitais.
 
 A FFT é calculada em escala de cinza, com deslocamento do espectro, magnitude logarítmica e média radial em 64 faixas, gerando um vetor de 64 componentes normalizado em $[0,1]$. O HOG utiliza células $8{\times}8$, blocos $2{\times}2$ e 8 orientações, parâmetros adequados a $32{\times}32$~\cite{dalal2005hog}, e produz 288 componentes. O LBP uniforme emprega $P=8$ vizinhos e raio $R=1$, com histograma de 10 bins normalizado~\cite{ojala2002lbp}. Cada família é padronizada por \texttt{StandardScaler} ajustado exclusivamente no treino, a fim de evitar vazamento de informação do teste e de impedir que a dimensionalidade maior de um descritor domine o SVM. A fusão concatena os três vetores já escalados, na ordem FFT, HOG e LBP, totalizando 362 componentes.
 
@@ -196,7 +200,146 @@ Treina-se um SVM por descritor isolado, para comparar os domínios, e um SVM sob
 
 As transformações reproduzem a circulação digital~\cite{bammey2024synthbuster,choi2025warpad}: JPEG com qualidade 90, 70 e 50; crop aleatório de 10\%, 25\% e 40\%, com retorno a $32{\times}32$; redução à metade da resolução e restauração do tamanho; blur gaussiano $3{\times}3$; e o pipeline \emph{crop 25\% $\rightarrow$ resize $0{,}5$ $\rightarrow$ JPEG 70}. Após cada operação a imagem permanece RGB $32{\times}32$, de modo que a dimensionalidade dos descritores não se altere.
 
-A métrica principal é a acurácia. O protocolo de robustez --- comparação do teste original (baseline) com o teste transformado, para FFT, HOG, LBP e fusão, sem retreinar o classificador --- encontra-se em execução. Gráficos de barras e um mapa de calor da queda de acurácia serão apresentados após a conclusão desses testes, para discutir quais padrões visuais desaparecem com cada transformação.
+A métrica principal é a acurácia. Em cada versão compara-se o teste original (baseline) com o teste transformado, para FFT, HOG, LBP e fusão, sem retreinar o classificador. Gráficos de barras da acurácia subsidiam a discussão sobre quais padrões visuais desaparecem com cada transformação e sobre o ganho da versão~2 em relação à versão~1.
+
+%----------------------------------------------------------------------
+\section{Resultados}
+\label{sec:resultados}
+%----------------------------------------------------------------------
+
+Os dois protocolos usam o mesmo SVM RBF ($C=10$), as mesmas features e o mesmo teste de 20 mil imagens. O que muda é o treino.
+
+\subsection{Versão 1: treino só no original}
+
+A Tabela~\ref{tab:svm-v1} mostra o teste original. A fusão atinge 92,04\%, acima de HOG (81,77\%), FFT (80,74\%) e LBP (72,12\%). No original, o detector clássico funciona.
+
+\begin{table}[ht]
+\centering
+\caption{Versão 1 --- SVM RBF no teste original. Treino: 100 mil imagens intactas.}
+\label{tab:svm-v1}
+\begin{tabular}{lrrr}
+\hline
+Feature & Acurácia & Tempo (s) & Tempo (h) \\
+\hline
+FFT    & 0,8074 & 959,0   & 0,27 \\
+HOG    & 0,8177 & 12100,6 & 3,36 \\
+LBP    & 0,7212 & 176,0   & 0,05 \\
+Fusão  & 0,9204 & 5555,6  & 1,54 \\
+\hline
+\end{tabular}
+\end{table}
+
+A Tabela~\ref{tab:transf-v1} e a Figura~\ref{fig:acuracia-v1} mostram o mesmo classificador, sem retreino, no teste transformado. JPEG 90 e 70 quase não alteram a fusão (91,53\%). JPEG 50 cai para 86,11\%. Crop, resize, blur e o pipeline reproduzem a falha do ZeroGPT: a fusão despenca para 62,41\% (crop 10\%), 56,52\% (crop 25\%), 55,24\% (crop 40\%), 55,13\% (resize), 55,18\% (pipeline) e 53,71\% (blur). O detector acerta a foto limpa e deixa de distinguir real de sintético depois de uma alteração banal.
+
+\begin{table}[ht]
+\centering
+\caption{Versão 1 --- acurácia no teste transformado, sem retreinar. Treino apenas em originais.}
+\label{tab:transf-v1}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lcccc}
+\hline
+Transformação & FFT & HOG & LBP & Fusão \\
+\hline
+original     & 0,8074 & 0,8177 & 0,7212 & 0,9204 \\
+JPEG 90      & 0,7956 & 0,8165 & 0,7153 & 0,9153 \\
+JPEG 70      & 0,7877 & 0,8148 & 0,7197 & 0,9153 \\
+JPEG 50      & 0,6364 & 0,7980 & 0,7000 & 0,8611 \\
+crop 10\%    & 0,5211 & 0,7517 & 0,6497 & 0,6241 \\
+crop 25\%    & 0,5082 & 0,6722 & 0,6031 & 0,5652 \\
+crop 40\%    & 0,4782 & 0,6238 & 0,5548 & 0,5524 \\
+resize $0{,}5$ & 0,5170 & 0,7581 & 0,5847 & 0,5513 \\
+blur $3{\times}3$ & 0,5093 & 0,7830 & 0,6236 & 0,5371 \\
+pipeline     & 0,4725 & 0,6387 & 0,5380 & 0,5518 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../../cod/results/acuracia_por_transformacao.png}
+\caption{Versão 1 --- acurácia por transformação. Treino só em originais. JPEG quase não mexe; crop, blur e pipeline colapsam a fusão.}
+\label{fig:acuracia-v1}
+\end{figure}
+
+\subsection{Versão 2: treino com transformações}
+
+A versão~2 inclui as nove transformações no treino (100 mil amostras aumentadas). A Tabela~\ref{tab:svm-v2} reúne o teste original. A fusão obtém 86,08\%, acima de HOG (76,22\%), FFT (75,32\%) e LBP (71,08\%). Em relação à versão~1, a acurácia no original recua cerca de 6 p.p., porque a fronteira passa a acomodar também as variantes digitais.
+
+\begin{table}[ht]
+\centering
+\caption{Versão 2 --- SVM RBF no teste original. Treino: 100 mil amostras (original + transformações).}
+\label{tab:svm-v2}
+\begin{tabular}{lrrr}
+\hline
+Feature & Acurácia & Tempo (s) & Tempo (h) \\
+\hline
+FFT    & 0,7532 & 768,8  & 0,21 \\
+HOG    & 0,7622 & 9382,2 & 2,61 \\
+LBP    & 0,7108 & 172,8  & 0,05 \\
+Fusão  & 0,8608 & 9093,5 & 2,53 \\
+\hline
+\end{tabular}
+\end{table}
+
+A Tabela~\ref{tab:transf-v2} e a Figura~\ref{fig:acuracia-v2} mostram o teste transformado. JPEG permanece próximo do baseline (85,98\% a 86,76\%). Crop, resize e blur deixam de colapsar: a fusão fica em 81,15\% (crop 10\%), 77,86\% (crop 25\%), 73,93\% (crop 40\%), 79,70\% (resize) e 81,78\% (blur). O pior caso é o pipeline, com 71,19\% --- ainda acima do acaso e bem acima dos 55,18\% da versão~1.
+
+\begin{table}[ht]
+\centering
+\caption{Versão 2 --- acurácia no teste transformado, sem retreinar. Treino com originais e variantes.}
+\label{tab:transf-v2}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lcccc}
+\hline
+Transformação & FFT & HOG & LBP & Fusão \\
+\hline
+original     & 0,7532 & 0,7622 & 0,7108 & 0,8608 \\
+JPEG 90      & 0,7514 & 0,7637 & 0,7078 & 0,8598 \\
+JPEG 70      & 0,7725 & 0,7653 & 0,7157 & 0,8676 \\
+JPEG 50      & 0,7265 & 0,7585 & 0,7109 & 0,8566 \\
+crop 10\%    & 0,6030 & 0,7284 & 0,6573 & 0,8115 \\
+crop 25\%    & 0,6750 & 0,6820 & 0,6348 & 0,7786 \\
+crop 40\%    & 0,6671 & 0,6443 & 0,6178 & 0,7393 \\
+resize $0{,}5$ & 0,6488 & 0,7327 & 0,6778 & 0,7970 \\
+blur $3{\times}3$ & 0,7032 & 0,7462 & 0,6674 & 0,8178 \\
+pipeline     & 0,5957 & 0,6556 & 0,5966 & 0,7119 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{../../cod/results/acuracia_robusto.png}
+\caption{Versão 2 --- acurácia por transformação. Treino com originais e variantes digitais.}
+\label{fig:acuracia-v2}
+\end{figure}
+
+\subsection{O que melhorou}
+
+A Tabela~\ref{tab:cmp-fusao} compara só a fusão, o detector de uso prático. No teste limpo a versão~1 é superior (92,04\% contra 86,08\%). Nas transformações que repetiam o problema do ZeroGPT, a versão~2 recupera de 16 a 28 pontos percentuais: blur sobe de 53,71\% para 81,78\%; pipeline, de 55,18\% para 71,19\%; crop 25\%, de 56,52\% para 77,86\%.
+
+\begin{table}[ht]
+\centering
+\caption{Fusão: versão 1 (treino só no original) versus versão 2 (treino com transformações).}
+\label{tab:cmp-fusao}
+\begin{tabular}{lrrr}
+\hline
+Transformação & Versão 1 & Versão 2 & Diferença \\
+\hline
+original     & 0,9204 & 0,8608 & $-$0,0596 \\
+JPEG 90      & 0,9153 & 0,8598 & $-$0,0555 \\
+JPEG 70      & 0,9153 & 0,8676 & $-$0,0477 \\
+JPEG 50      & 0,8611 & 0,8566 & $-$0,0045 \\
+crop 10\%    & 0,6241 & 0,8115 & $+$0,1874 \\
+crop 25\%    & 0,5652 & 0,7786 & $+$0,2134 \\
+crop 40\%    & 0,5524 & 0,7393 & $+$0,1869 \\
+resize $0{,}5$ & 0,5513 & 0,7970 & $+$0,2457 \\
+blur $3{\times}3$ & 0,5371 & 0,8178 & $+$0,2807 \\
+pipeline     & 0,5518 & 0,7119 & $+$0,1601 \\
+\hline
+\end{tabular}
+\end{table}
+
+Em resumo: a versão~1 confirma o diagnóstico --- features clássicas detectam bem a imagem limpa e falham depois da circulação digital. A versão~2 corrige esse comportamento. Cede cerca de 6 p.p. no original e deixa de colapsar após crop, blur e o pipeline. O recorte agressivo continua sendo o caso mais difícil, porém a fusão permanece acima de 71\% em todas as transformações avaliadas.
 
 \bibliographystyle{sbc}
 \bibliography{referencias-e2}
