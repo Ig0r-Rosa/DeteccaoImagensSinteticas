@@ -41,6 +41,3 @@ rm -f "${TEX}.aux" "${TEX}.bbl" "${TEX}.blg" "${TEX}.log" "${TEX}.out" "${TEX}.t
 PAGES=$(pdfinfo "${PDF}" 2>/dev/null | awk '/Pages/ {print $2}' || echo "?")
 echo "OK: ${DIR}/${PDF} (${PAGES} páginas)"
 ls -lh "${PDF}"
-if [[ ! -f anexos/poster.pdf ]]; then
-  echo "Aviso: anexos/poster.pdf ainda não está na pasta (PENDENTE)."
-fi

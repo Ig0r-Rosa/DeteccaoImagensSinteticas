@@ -1,0 +1,16 @@
+Complementar o relatório anterior (construção sendo realizada nas demais entregas | entrega-02) com os detalhes de implementação do trabalho, e os resultados na avaliação realizada. 
+
+Seções novas:
+
+Seção de desenvolvimento: descrever como o trabalho foi desenvolvido, quais escolhas finais foram realizadas.
+Subseção de implementação: descrever brevemente a implementação, parâmetros, etc. utilizados, como subseção do desenvolvimento. 
+Seção de Avaliação: Descrever a metodologia de avaliação, e resultados obtidos. 
+Seção de Conclusão: Fazer as colocações finais, descrevendo de forma geral se o objetivo do projeto foi atingido, apontando trabalhos futuros. 
+
+---
+Para o moodle:
+Entregas: 
+Relatório Final
+Código (ou link para repositório)
+
+Preparar uma apresentação de 15-20 min para os colegas (datas das apresentações serão 01/07).

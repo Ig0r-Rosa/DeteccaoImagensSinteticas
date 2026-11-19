@@ -10,7 +10,6 @@
 \usepackage{tabularx}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit}
-\usepackage{pdfpages}
 \usepackage{float}
 \usepackage{caption}
 \usepackage{needspace}
@@ -67,12 +66,6 @@ A pergunta deste trabalho é: quão bem detectores baseados em features clássic
 
 A solução desenvolvida, chamada VerifAI, usa visão computacional clássica e uma base alinhada ao uso do detector. Cada imagem é descrita por três tipos de features: FFT (frequência), HOG (espaço) e LBP (textura). Esses vetores são unidos e classificados por um SVM com kernel RBF~\cite{cortes1995svm,dalal2005hog,ojala2002lbp,gonzalez2018}. No treino entram também versões leves da mesma imagem (JPEG, resize, blur e um pipeline combinado), para o modelo ver cedo as degradações comuns na internet, sem apagar o sinal que a FFT precisa. A base é pareada: cada foto real do COCO~\cite{coco2017} tem uma versão sintética gerada localmente. O fluxo é descrever a foto com BLIP, depois gerar a imagem com Stable Diffusion 1.5 e ControlNet Depth, mantendo pose e composição. O app Streamlit analisa a imagem inteira em $224{\times}224$ (letterbox), no mesmo formato do treino, sem o grid de janelas usado nos testes em $32{\times}32$.
 
-\subsection{Objetivos e contribuições}
-
-Os objetivos foram medir a queda de desempenho após transformações digitais (JPEG, crop, resize, blur e pipeline), montar uma base REAL/FAKE proporcional e alinhada em cena e pose, entregar um classificador clássico (fusão de features com SVM) com interface de inspeção, e registrar o que não funcionou nas bases anteriores.
-
-Como resultado, documentamos o problema das bases desalinhadas (CIFAKE, CelebA e Harvard AIGI com COCO), geramos 5{.}000 pares locais com BLIP, Stable Diffusion 1.5 e ControlNet Depth, calibramos o detector com 88,15\% de acurácia no holdout 4{.}000/1{.}000, entregamos o app VerifAI com zona inconclusiva e scores auxiliares, e discutimos os limites do SVM fora do domínio treinado. Os links da entrega estão na Seção~\ref{sec:links}. O poster está no Anexo~\ref{anexo:poster}.
-
 %----------------------------------------------------------------------
 \section{Trabalhos relacionados}
 %----------------------------------------------------------------------
@@ -104,7 +97,7 @@ Na detecção de conteúdo sintético, o processo de geração (em especial o \e
 
 \subsection{HOG (domínio do espaço)}
 
-O Histograma de Gradientes Orientados (HOG) descreve a forma local da imagem~\cite{dalal2005hog}. Em cada célula, acumulam-se orientações de bordas. A união dos histogramas resume o desenho da cena. No pipeline final, a imagem letterbox $224{\times}224$ é redimensionada a $128{\times}128$ para o HOG, com células $16{\times}16$ e blocos $2{\times}2$, gerando um vetor de 1{.}568 dimensões. Crop e resize mudam a geometria das bordas. O blur as suaviza. Por isso o HOG é útil para medir o efeito dessas transformações na estrutura espacial da cena.
+O Histograma de Gradientes Orientados (HOG) descreve a forma local da imagem~\cite{dalal2005hog}. Em cada célula, acumulam-se orientações de bordas. A união dos histogramas resume o desenho da cena. No nosso uso, a imagem é redimensionada a $128{\times}128$ para o HOG, com células $16{\times}16$ e blocos $2{\times}2$, gerando um vetor de 1{.}568 dimensões. Crop e resize mudam a geometria das bordas. O blur as suaviza. Por isso o HOG é útil para medir o efeito dessas transformações na estrutura espacial da cena.
 
 \subsection{LBP (domínio da textura)}
 
@@ -112,7 +105,7 @@ O Padrão Binário Local (LBP) compara cada pixel com os vizinhos em um círculo
 
 \subsection{Fusão e SVM}
 
-A fusão junta os três vetores já padronizados por família (\texttt{StandardScaler}) e alimenta um SVM com kernel RBF~\cite{cortes1995svm}. A Tabela~\ref{tab:dims} mostra as dimensões. Os parâmetros $C{=}10$ e $\gamma{=}\mathrm{auto}$ foram fixados após calibração. A classe REAL recebe peso maior para reduzir falso positivo no aplicativo. O treino usa ThunderSVM na GPU e, se preciso, \texttt{sklearn} na CPU.
+A fusão junta os três vetores já padronizados por família (\texttt{StandardScaler}) e alimenta um SVM com kernel RBF~\cite{cortes1995svm}. A Tabela~\ref{tab:dims} mostra as dimensões. Os parâmetros $C{=}10$ e $\gamma{=}\mathrm{auto}$ foram fixados após calibração. A classe REAL recebe peso maior para reduzir falso positivo no aplicativo.
 
 \begin{table}[ht]
 \centering
@@ -131,36 +124,12 @@ Fusão & 1{.}646 & concatenação padronizada \\
 \end{tabular}
 \end{table}
 
-\subsection{Pré-processamento: letterbox 224}
-
-Diferente do CIFAKE ($32{\times}32$), o pipeline final encaixa a foto inteira em $224{\times}224$ mantendo a proporção. A borda usa reflexão (\texttt{BORDER\_REFLECT\_101}), e não preenchimento preto. Bordas pretas criavam anéis artificiais no espectro FFT e puxavam a acurácia para perto do acaso. O HOG usa resolução interna de $128{\times}128$. Assim o classificador vê a cena completa, no mesmo formato do app.
-
-\subsection{Transformações digitais}
-
-No treino usamos seis variantes leves da mesma imagem: a original, compressões JPEG com qualidade 90 e 70, redimensionamento para a metade da resolução, suavização gaussiana $3{\times}3$, e um pipeline que combina crop de 25\%, resize $0{,}5$ e JPEG 70. Essas variantes imitam o que acontece quando a foto circula na internet, sem apagar por completo o sinal que a FFT precisa aprender.
-
-Na avaliação de robustez entram ainda JPEG 50 e crops de 10\%, 25\% e 40\%. Crops fortes e JPEG 50 não entram no treino. Em testes anteriores, aumentos muito pesados destruíram o sinal espectral e pioraram o descritor de frequência.
-
 %----------------------------------------------------------------------
-\section{Evolução das bases (o que não funcionou)}
+\section{Evolução das bases}
 \label{sec:bases}
 %----------------------------------------------------------------------
 
 Antes da solução final, várias bases foram testadas. O problema comum foi o domínio desalinhado: o classificador aprendia diferenças de conteúdo (rosto contra paisagem, $32{\times}32$ contra foto de celular), e não artefatos de síntese. A Tabela~\ref{tab:bases} resume o panorama. As subseções a seguir detalham cada tentativa.
-
-\subsection{CIFAKE}
-
-O CIFAKE~\cite{bird2024cifake} serviu para validar rápido o pipeline clássico. Treinar só nas imagens originais chegou a cerca de 92\% de fusão no teste limpo, mas a acurácia caiu para cerca de 54\% após crop, blur ou pipeline, no mesmo estilo de falha visto no ZeroGPT. Incluir transformações no treino recuperou robustez (fusão acima de 71\% após o pipeline). Mesmo assim, duas barreiras ficaram para o app: a resolução forçada a $32{\times}32$ e o domínio CIFAR-10, bem diferente de fotos reais em alta resolução.
-
-\subsection{CelebA e fotos gerais}
-
-Usar CelebA só como REAL (rostos de celebridades) gerou muitos falsos positivos em fotos gerais: parque, corpo inteiro, rua e objetos. O SVM ligava ``rosto de estúdio'' à classe REAL e tratava cenas do dia a dia como suspeitas. Sem FAKE proporcional do mesmo tipo de cena, a base não serve para um detector genérico.
-
-\subsection{Harvard AIGI e cruzamento com COCO}
-
-A coleção Harvard AIGI~\cite{harvardAIGI} junta imagens de IA coletadas em Instagram e Twitter/X. Treinar só com esse FAKE, sem REAL do mesmo universo, não resolve. O cruzamento COCO (REAL diverso) com Harvard (FAKE de rede) deixou a FFT perto do acaso (cerca de 53\%). Os domínios são diferentes demais e o classificador não encontra um eixo estável de síntese.
-
-\subsection{Síntese da lição}
 
 \begin{table}[ht]
 \centering
@@ -192,7 +161,17 @@ COCO e Harvard
 \end{tabular}
 \end{table}
 
-A lição prática é simples. Para o app, REAL e FAKE precisam ser o par inverso (mesma cena e mesma pose). Caso contrário, o SVM decide pelo assunto da foto, e não pelo sinal de geração.
+\subsection{CIFAKE}
+
+O CIFAKE~\cite{bird2024cifake} serviu para validar rápido o pipeline clássico. Treinar só nas imagens originais chegou a cerca de 92\% de fusão no teste limpo, mas a acurácia caiu para cerca de 54\% após crop, blur ou pipeline, no mesmo estilo de falha visto no ZeroGPT. Incluir transformações no treino recuperou robustez (fusão acima de 71\% após o pipeline). Mesmo assim, duas barreiras ficaram para o app: a resolução forçada a $32{\times}32$ e o domínio CIFAR-10, bem diferente de fotos reais em alta resolução.
+
+\subsection{CelebA e fotos gerais}
+
+Usar CelebA só como REAL (rostos de celebridades) gerou muitos falsos positivos em fotos gerais: parque, corpo inteiro, rua e objetos. O SVM ligava ``rosto de estúdio'' à classe REAL e tratava cenas do dia a dia como suspeitas. Sem FAKE proporcional do mesmo tipo de cena, a base não serve para um detector genérico.
+
+\subsection{Harvard AIGI e cruzamento com COCO}
+
+A coleção Harvard AIGI~\cite{harvardAIGI} junta imagens de IA coletadas em Instagram e Twitter/X. Treinar só com esse FAKE, sem REAL do mesmo universo, não resolve. O cruzamento COCO (REAL diverso) com Harvard (FAKE de rede) deixou a FFT perto do acaso (cerca de 53\%). Os domínios são diferentes demais e o classificador não encontra um eixo estável de síntese.
 
 %----------------------------------------------------------------------
 \section{Solução final}
@@ -201,9 +180,9 @@ A lição prática é simples. Para o app, REAL e FAKE precisam ser o par invers
 
 \subsection{Geração de pares: COCO, JSON e imagem IA}
 
-A partir de 5{.}000 fotos COCO~\cite{coco2017} em \texttt{base/landscape\_real/} (amostra aleatória de imagens íntegras do \texttt{train2017}), geramos uma versão sintética para cada fotografia. O fluxo aparece na Figura~\ref{fig:pipeline-pares} e tem três etapas. Primeiro, o modelo BLIP (\texttt{Salesforce/blip-image-captioning-large}) descreve a cena e monta o prompt textual. Depois, Stable Diffusion 1.5 com ControlNet Depth (\texttt{lllyasviel/sd-controlnet-depth}), usando estimativa de profundidade MiDaS, gera a imagem sintética mantendo pose e composição e mudando a aparência. Por fim, cada arquivo é salvo em \texttt{base/pares\_ia/} com o mesmo nome da foto real, o que facilita o pareamento no carregador de dados.
+A partir de 5{.}000 fotos COCO~\cite{coco2017} (amostra aleatória de imagens íntegras do \texttt{train2017}), geramos uma versão sintética para cada fotografia. O fluxo aparece na Figura~\ref{fig:pipeline-pares} e tem três etapas. Primeiro, o modelo BLIP descreve a cena e monta o prompt textual. Depois, Stable Diffusion 1.5 com ControlNet Depth, usando estimativa de profundidade MiDaS, gera a imagem sintética mantendo pose e composição e mudando a aparência. Por fim, cada imagem sintética é salva com o mesmo nome da foto real, o que facilita o pareamento no carregador de dados.
 
-O processo rodou localmente com um pipeline que salva progresso (\texttt{cod/pares/}, estado em \texttt{base/pares\_estado.json}). Se a geração parasse, a execução seguinte continuava do último índice pendente. A Figura~\ref{fig:par} mostra um exemplo: à esquerda a foto real e à direita a versão sintética com pose parecida. O pacote das bases está no Drive (Seção~\ref{sec:links}).
+O processo rodou localmente com um pipeline que salva o progresso. Se a geração parasse, a execução seguinte continuava do último índice pendente. A Figura~\ref{fig:par} mostra um exemplo: à esquerda a foto real e à direita a versão sintética com pose parecida. O pacote das bases está no Drive (Seção~\ref{sec:links}).
 
 \begin{figure}[ht]
 \centering
@@ -232,15 +211,26 @@ O processo rodou localmente com um pipeline que salva progresso (\texttt{cod/par
 \label{fig:par}
 \end{figure}
 
+\subsection{Pré-processamento: letterbox 224}
+
+Diferente do CIFAKE ($32{\times}32$), o pipeline final encaixa a foto inteira em $224{\times}224$ mantendo a proporção. A borda usa reflexão (\texttt{BORDER\_REFLECT\_101}), e não preenchimento preto. Bordas pretas criavam anéis artificiais no espectro FFT e puxavam a acurácia para perto do acaso. O HOG usa resolução interna de $128{\times}128$. Assim o classificador vê a cena completa, no mesmo formato do app.
+
+\subsection{Transformações digitais}
+\label{sec:transformacoes}
+
+No treino usamos seis variantes leves da mesma imagem: a original, compressões JPEG com qualidade 90 e 70, redimensionamento para a metade da resolução, suavização gaussiana $3{\times}3$, e um pipeline que combina crop de 25\%, resize $0{,}5$ e JPEG 70. Essas variantes imitam o que acontece quando a foto circula na internet, sem apagar por completo o sinal que a FFT precisa aprender.
+
+Na avaliação de robustez entram ainda JPEG 50 e crops de 10\%, 25\% e 40\%. Crops fortes e JPEG 50 não entram no treino.
+
 \subsection{Protocolo de treino}
 
-O notebook \texttt{cod/main\_v3.ipynb} usa o protocolo de avaliação com 4{.}000 pares no treino (8{.}000 imagens, REAL e IA) e 1{.}000 pares no teste (2{.}000 imagens), nunca vistos no treino. A divisão é por par: o mesmo nome de arquivo não aparece nos dois lados, e a semente é fixa. Cada imagem gera seis amostras de treino (as variantes da Seção~\ref{sec:fundamentacao}), totalizando cerca de 48{.}000 vetores por família de feature. O SVM é treinado com ThunderSVM na GPU e peso maior na classe REAL. Os arquivos salvos são \texttt{cod/models/svm\_v3\_*.pkl} e \texttt{scaler\_v3\_*.pkl}.
+O protocolo de avaliação usa 4{.}000 pares no treino (8{.}000 imagens, REAL e IA) e 1{.}000 pares no teste (2{.}000 imagens), nunca vistos no treino. A divisão é por par: o mesmo nome de arquivo não aparece nos dois lados, e a semente é fixa. Cada imagem gera seis amostras de treino (as variantes da Seção~\ref{sec:transformacoes}), totalizando cerca de 48{.}000 vetores por família de feature. O SVM é treinado com ThunderSVM na GPU e, se preciso, com \texttt{sklearn} na CPU, com peso maior na classe REAL. Os modelos e scalers treinados ficam salvos para uso no aplicativo.
 
 \subsection{Aplicação Streamlit (VerifAI)}
 
-O app (\texttt{app.py}, via \texttt{./run\_app.sh}) segue o mesmo caminho do treino. O usuário envia uma imagem JPEG ou PNG. Aplica-se o letterbox $224{\times}224$ com borda refletida. Recalculam-se FFT, HOG e LBP, cada vetor padronizado com o scaler do treino. O SVM de fusão devolve a probabilidade de a imagem ser sintética. Os scores de FFT e HOG aparecem como apoio. Chance baixa de IA indica provável REAL. Chance alta indica provável IA. Entre 40\% e 60\% o resultado é tratado como inconclusivo. Não há grid de janelas: entra a imagem inteira. Os modelos vêm de \texttt{cod/models/}.
+O app Streamlit segue o mesmo caminho do treino. O usuário envia uma imagem JPEG ou PNG. Aplica-se o letterbox $224{\times}224$ com borda refletida. Recalculam-se FFT, HOG e LBP, cada vetor padronizado com o scaler do treino. O SVM de fusão devolve a probabilidade de a imagem ser sintética. Os scores de FFT e HOG aparecem como apoio. Chance baixa de IA indica provável REAL. Chance alta indica provável IA. Entre 40\% e 60\% o resultado é tratado como inconclusivo. Não há grid de janelas: entra a imagem inteira.
 
-Para inspeção manual, a pasta \texttt{base/teste\_app/} tem cinco pares (REAL e IA) nas seis variantes de treino, com um manifesto JSON. As Figuras~\ref{fig:ex-real} e~\ref{fig:ex-ia} mostram saídas típicas do app.
+Para inspeção manual, um conjunto de teste com cinco pares (REAL e IA) nas seis variantes de treino acompanha o aplicativo. As Figuras~\ref{fig:ex-real} e~\ref{fig:ex-ia} mostram saídas típicas do app.
 
 \begin{figure}[ht]
 \centering
@@ -326,13 +316,13 @@ Comparando com o CIFAKE antigo (cerca de 92\% no original e queda forte após cr
 \label{sec:discussao}
 %----------------------------------------------------------------------
 
-Os resultados mostram o que funciona bem no app e também onde o desenho atual para.
+Esta seção interpreta os resultados do holdout e dos testes de robustez, relacionando o desempenho observado às escolhas de base, features e classificador, e apontando os limites do detector no estado atual.
 
 \subsection{O que funcionou}
 
 A experiência com as bases anteriores mostrou que o domínio importa mais do que o volume. Dezenas de milhares de imagens FAKE de Instagram ou Twitter, sem um REAL proporcional do mesmo tipo de cena, pioraram o app: a FFT ficou perto do acaso (cerca de 53\%). Só aumentar o volume não corrige o desalinhamento.
 
-Os pares gerados com ControlNet ensinam a diferença entre a mesma cena real e a mesma cena sintética. A fusão (88,15\%) fica acima da FFT isolada (75\%), o que sugere que HOG e LBP complementam o espectro quando a geometria é compartilhada entre as classes. O aumento leve no treino prepara o modelo para JPEG, resize e blur sem destruir o sinal espectral. Crops fortes e JPEG 50 ficam só no teste de robustez, depois que a FFT piorou com aumentos muito pesados. O letterbox 224 permite usar a foto completa no app, no mesmo formato do treino. O grid $32{\times}32$ do CIFAKE foi abandonado.
+Os pares gerados com ControlNet ensinam a diferença entre a mesma cena real e a mesma cena sintética. A fusão (88,15\%) fica acima da FFT isolada (75\%), o que sugere que HOG e LBP complementam o espectro quando a geometria é compartilhada entre as classes. O aumento leve no treino prepara o modelo para JPEG, resize e blur. O letterbox 224 permite usar a foto completa no app, no mesmo formato do treino. O grid $32{\times}32$ do CIFAKE foi abandonado.
 
 \subsection{Limitações do SVM e papel do deep learning}
 
@@ -358,9 +348,9 @@ Além disso, os pares são gerados localmente, e não a partir de posts reais re
 \section{Organização do código e reprodutibilidade}
 %----------------------------------------------------------------------
 
-O repositório usa pastas em minúsculas. Em \texttt{cod/} ficam o notebook \texttt{main\_v3.ipynb}, o pacote \texttt{v3/} (dados, features e SVM), além de \texttt{models/} e \texttt{results/}. O subpacote \texttt{cod/pares/} faz a descrição e a geração dos pares com retomada de progresso. A interface Streamlit (VerifAI) está em \texttt{app/} e \texttt{app.py}. As imagens ficam em \texttt{base/}, com \texttt{landscape\_real/}, \texttt{pares\_ia/} e \texttt{teste\_app/}. As entregas em LaTeX, incluindo este relatório, ficam em \texttt{artigos/}.
+O repositório separa o código de treino e features, a geração dos pares com retomada de progresso, a interface Streamlit (VerifAI), as imagens da base e os textos de entrega. Os modelos treinados e os resultados ficam junto ao código, para facilitar a reprodução.
 
-Para reproduzir os experimentos: baixar as bases pelo Drive, instalar as dependências e o ThunderSVM, rodar o notebook no protocolo 4{.}000/1{.}000 e iniciar o app com \texttt{./run\_app.sh}. A Figura~\ref{fig:fluxo-final} resume o fluxo geral.
+Para reproduzir os experimentos: baixar as bases pelo Drive, instalar as dependências e o ThunderSVM, treinar no protocolo 4{.}000/1{.}000 e iniciar o app. A Figura~\ref{fig:fluxo-final} resume o fluxo geral.
 
 \begin{center}
 \begin{tikzpicture}[
@@ -450,7 +440,7 @@ O VerifAI mostra que um detector clássico (FFT, HOG, LBP e SVM) pode ser útil 
 
 A geração local de pares COCO e IA produziu 5{.}000 pares com cena e pose correspondentes. No protocolo 4{.}000/1{.}000, a fusão chegou a 88,15\% de acurácia e se manteve robusta às transformações leves (JPEG, resize e blur). O Streamlit avalia a imagem inteira (letterbox 224) e mostra o veredito da fusão, com zona inconclusiva.
 
-No estado atual, imagens totalmente diferentes das treinadas fazem o modelo perder precisão e confundir REAL com IA. Isso é esperado em um SVM com features manuais. Já imagens ligadas à base (outras fotos COCO, mesma família de gerador) e submetidas às transformações do escopo inicial mantêm precisão alta, que era o objetivo proposto. Os próximos passos, detalhados na Seção~\ref{sec:proximos}, apontam para uma detecção em duas etapas (identificar a transformação e depois aplicar um especialista REAL/IA) e para o reforço da base com dados mais próximos do que circula na internet.
+No estado atual, imagens totalmente diferentes das treinadas fazem o modelo perder precisão e confundir REAL com IA. Isso é esperado em um SVM com features manuais. Já imagens ligadas à base (outras fotos COCO, mesma família de gerador) e submetidas às transformações do escopo inicial mantêm precisão alta, que era o objetivo proposto. Como caminho seguinte, discutido na Seção~\ref{sec:proximos}, queremos especializar o detector por tipo de transformação e treinar com dados mais parecidos com o que realmente circula na internet.
 
 %----------------------------------------------------------------------
 \section{Links da entrega}
@@ -460,7 +450,7 @@ No estado atual, imagens totalmente diferentes das treinadas fazem o modelo perd
 \begin{table}[ht]
 \centering
 \small
-\caption{Links da entrega. Itens pendentes devem ser atualizados em \texttt{configs/links.tex}.}
+\caption{Links da entrega.}
 \label{tab:links}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -477,8 +467,6 @@ Código (GitHub) & \linkGithub \\
 Apresentação (Slides) & \linkApresentacao \\
 \addlinespace
 Vídeo (YouTube) & \linkVideo \\
-\addlinespace
-Poster (anexo) & \texttt{anexos/poster.pdf} (ver Anexo~\ref{anexo:poster}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -486,20 +474,5 @@ Poster (anexo) & \texttt{anexos/poster.pdf} (ver Anexo~\ref{anexo:poster}) \\
 \bibliographystyle{sbc}
 \bibliography{referencias}
 
-%----------------------------------------------------------------------
-\appendix
-\section{Poster}
-\label{anexo:poster}
-%----------------------------------------------------------------------
-
-\IfFileExists{anexos/poster.pdf}{
-  \includepdf[pages=-]{anexos/poster.pdf}
-}{
-  \begin{center}
-  \fbox{\parbox{0.9\textwidth}{\centering\vspace{2cm}
-  Poster em PDF: inserir em \texttt{anexos/poster.pdf} e recompilar.
-  \vspace{2cm}}}
-  \end{center}
-}
-
 \end{document}
+
