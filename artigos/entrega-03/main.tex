@@ -6,6 +6,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit}
 \usepackage{caption}
@@ -14,7 +15,7 @@
 \providecommand{\normalsfcodes}{}
 
 \title{Detecção de Imagens Sintéticas após Transformações Digitais:\\
-implementação do detector VerifAI e avaliação}
+do experimento clássico ao detector VerifAI}
 
 \author{Nathália G. Ribas\inst{1}, Igor M. da Rosa\inst{1}}
 
@@ -29,18 +30,18 @@ Araranguá, SC
 \maketitle
 
 \begin{abstract}
-This paper continues the previous report on classical detection of AI-generated images under digital transforms. After CIFAKE experiments, we moved to a paired COCO and synthetic dataset built locally with ControlNet Depth, trained FFT, HOG and LBP features with an RBF SVM, and delivered the VerifAI Streamlit app. On a 4{,}000/1{,}000 pair holdout, fusion reaches 88.15\% accuracy and stays robust under light JPEG, resize and blur. We also discuss limits outside the training domain and outline next steps.
+This work addresses classical computer vision for detecting AI-generated images after common digital transforms such as JPEG, crop, resize and blur. FFT, HOG and LBP features are combined with an RBF SVM. Early tests on CIFAKE confirmed high clean-test accuracy and strong drops after transforms unless light augmentation is used in training. Unpaired bases (CelebA, social AI collections) failed for a practical detector. The final solution, VerifAI, trains on 5{,}000 local COCO and synthetic pairs built with ControlNet Depth, evaluates the full letterboxed image, and reaches 88.15\% fusion accuracy on a 4{,}000/1{,}000 holdout, remaining robust under light transforms. Limits of the SVM outside the training domain and next steps are also discussed.
 \end{abstract}
 
 \begin{resumo}
-Este artigo complementa o relatório anterior sobre detecção clássica de imagens geradas por IA sob transformações digitais. Depois dos experimentos no CIFAKE, passamos a uma base pareada COCO e sintética gerada localmente com ControlNet Depth, treinamos FFT, HOG e LBP com SVM RBF e entregamos o aplicativo Streamlit VerifAI. No holdout 4{.}000/1{.}000 pares, a fusão chega a 88,15\% de acurácia e permanece robusta a JPEG, resize e blur leves. Também discutimos os limites fora do domínio treinado e os próximos passos.
+Este trabalho aborda visão computacional clássica para detectar imagens geradas por IA após transformações digitais comuns, como JPEG, crop, resize e blur. Descritores FFT, HOG e LBP são combinados com um SVM de kernel RBF. Testes iniciais no CIFAKE confirmaram boa acurácia no teste limpo e queda forte após transformações, a menos que o treino inclua aumento leve. Bases sem pareamento (CelebA e coleções de IA de rede) não serviram para um detector prático. A solução final, VerifAI, treina em 5{.}000 pares locais COCO e sintéticos gerados com ControlNet Depth, avalia a imagem inteira em letterbox e chega a 88,15\% de acurácia na fusão no holdout 4{.}000/1{.}000, mantendo robustez sob transformações leves. Também são discutidos os limites do SVM fora do domínio treinado e os próximos passos.
 \end{resumo}
 
 %----------------------------------------------------------------------
 \section{Introdução}
 %----------------------------------------------------------------------
 
-Imagens geradas por inteligência artificial circulam com facilidade em redes sociais, campanhas e anúncios. Na prática, quase nunca chegam intactas: passam por compressão JPEG, recorte, redimensionamento e filtros. Um detector pode acertar a foto limpa e errar depois dessas mudanças. Esse comportamento aparece em ferramentas públicas, como o ZeroGPT\footnote{\url{https://www.zerogpt.com/pt/ai-image-detector}} (Figura~\ref{fig:zerogpt}): a mesma cena marcada como falsa passa a ser tratada como real após uma compressão simples.
+Imagens geradas por inteligência artificial aparecem com frequência em redes sociais, campanhas eleitorais, anúncios e mensagens. Na prática, quase nunca chegam intactas: passam por compressão JPEG, recorte, redimensionamento e filtros. Um detector pode acertar a foto limpa e errar depois dessas mudanças. Isso foi visto em testes com o ZeroGPT\footnote{\url{https://www.zerogpt.com/pt/ai-image-detector}} (Figura~\ref{fig:zerogpt}).
 
 \begin{figure}[ht]
 \centering
@@ -51,26 +52,111 @@ Imagens geradas por inteligência artificial circulam com facilidade em redes so
 \label{fig:zerogpt}
 \end{figure}
 
-A pergunta que guia o projeto é: quão bem detectores baseados em features clássicas continuam funcionando quando a imagem sofre transformações típicas da internet? No relatório anterior, essa pergunta foi respondida no CIFAKE~\cite{bird2024cifake}, com descritores FFT, HOG e LBP e um SVM de kernel RBF~\cite{cortes1995svm,dalal2005hog,ojala2002lbp,gonzalez2018}. Treinar só nas imagens originais deu cerca de 92\% de acurácia no teste limpo, mas a fusão caiu para perto de 54\% após crop, blur ou o pipeline combinado. Incluir as transformações no treino recuperou a robustez (fusão acima de 71\% no mesmo pipeline), ao custo de uma queda moderada no teste original.
+A pergunta abordada neste trabalho é: quão bem detectores baseados em features clássicas continuam funcionando quando a imagem sofre transformações típicas da internet? Duas questões práticas orientam o estudo. A primeira é escolher uma base de treino adequada para um aplicativo. A segunda é alinhar REAL e FAKE: sem o par inverso (mesma cena e mesma pose), o classificador tende a aprender o assunto da foto, e não o sinal de que a imagem foi gerada.
 
-Ainda assim, o CIFAKE em $32{\times}32$ e no domínio do CIFAR-10 ficou longe do uso em fotos reais de celular. Surgiram duas questões práticas para a continuação do trabalho. A primeira é escolher uma base adequada para um aplicativo de inspeção. A segunda é alinhar REAL e FAKE: sem o par inverso (mesma cena e mesma pose), o classificador tende a aprender o assunto da foto, e não o sinal de que a imagem foi gerada.
+A solução proposta, chamada VerifAI, usa visão computacional clássica e uma base alinhada ao uso do detector. Cada imagem é descrita por FFT (frequência), HOG (espaço) e LBP (textura). Esses vetores são unidos e classificados por um SVM com kernel RBF~\cite{cortes1995svm,dalal2005hog,ojala2002lbp,gonzalez2018}. No treino entram versões leves da mesma imagem (JPEG, resize, blur e um pipeline combinado). A base final é pareada: cada foto real do COCO~\cite{coco2017} tem uma versão sintética gerada localmente com BLIP, Stable Diffusion 1.5 e ControlNet Depth. O aplicativo Streamlit analisa a imagem inteira em $224{\times}224$ (letterbox), no mesmo formato do treino.
 
-Este artigo descreve essa etapa final. Na Seção~\ref{sec:desenvolvimento} apresentamos as escolhas de desenvolvimento e a implementação do detector VerifAI (features, parâmetros, letterbox e aplicativo Streamlit). Na Seção~\ref{sec:avaliacao} detalhamos a metodologia de avaliação e os resultados na base pareada. Na Seção~\ref{sec:conclusao} discutimos se o objetivo foi atingido e os trabalhos futuros.
+%----------------------------------------------------------------------
+\section{Trabalhos relacionados}
+%----------------------------------------------------------------------
+
+Bird e Lotfi~\cite{bird2024cifake} propuseram o CIFAKE, com imagens reais do CIFAR-10 e sintéticas feitas com Stable Diffusion, todas em $32{\times}32$, e reportaram cerca de 93\% de acurácia com CNN. O conjunto é balanceado e já foi usado com features manuais~\cite{nirob2026handcrafted}, o que motivou os primeiros testes deste trabalho. A resolução baixa e o domínio fechado do CIFAR-10, porém, dificultam a transferência para fotos de celular em resolução normal.
+
+Frank et al.~\cite{frank2020frequency} mostraram que GANs deixam marcas no espectro de frequência ligadas ao \emph{upsampling}. Bammey~\cite{bammey2024synthbuster} levou a ideia para modelos de difusão (Synthbuster), o que reforça o uso de FFT e o teste sob JPEG. Nirob et al.~\cite{nirob2026handcrafted} compararam histograma, DCT, HOG, LBP, GLCM e wavelets com classificadores clássicos. A fusão de descritores manuais melhorou o desempenho. Choi et al.~\cite{choi2025warpad} mostraram que crop e resize prejudicam detectores, o que combina com o foco deste trabalho em robustez.
+
+No lado dos dados, o Microsoft COCO~\cite{coco2017} traz fotos diversas (pessoas, objetos, cenas urbanas e naturais). Coleções de imagens sintéticas de redes sociais~\cite{harvardAIGI} concentram FAKE que circulam de fato, mas sem um REAL proporcional do mesmo tipo de cena. Essa falta de equilíbrio pesou nos experimentos realizados.
+
+Este trabalho segue a linha clássica (FFT, HOG, LBP e SVM), com foco no alinhamento entre REAL e FAKE e em um aplicativo de inspeção (VerifAI), em vez de ficar só no CIFAKE em baixa resolução.
+
+%----------------------------------------------------------------------
+\section{Fundamentação}
+\label{sec:fundamentacao}
+%----------------------------------------------------------------------
+
+\subsection{Visão clássica e aprendizado profundo}
+
+Há dois caminhos principais para decidir se uma imagem é real ou gerada por IA. Na visão clássica, a imagem é resumida por descritores calculados de forma explícita (frequência, bordas e textura) e um classificador, em geral SVM, aprende a fronteira entre as classes~\cite{gonzalez2018,nirob2026handcrafted}. Cada parte do vetor tem um significado visual, o que ajuda a ligar uma transformação (JPEG, crop, blur) à queda em um domínio específico.
+
+No aprendizado profundo, uma rede convolucional ou um modelo semelhante aprende os padrões sozinha. No CIFAKE, esse tipo de modelo chega a cerca de 93\% de acurácia~\cite{bird2024cifake}. Em troca, há menos transparência e, em geral, mais necessidade de dados e GPU. Com o objetivo de interpretar o que o modelo usa e manter um pipeline clássico reproduzível, adotam-se features manuais e SVM.
+
+\subsection{FFT, HOG e LBP}
+
+Uma imagem pode ser vista como soma de ondas de diferentes frequências~\cite{gonzalez2018}. A Transformada Rápida de Fourier (FFT) faz essa decomposição. Na detecção de conteúdo sintético, o processo de geração (em especial o \emph{upsampling} de GANs e de modelos de difusão) deixa marcas periódicas no espectro~\cite{frank2020frequency,bammey2024synthbuster}. A compressão JPEG também age em frequência. No pipeline adotado, a FFT 2D em escala de cinza vira um perfil radial em 64 anéis, somado a razões de energia e ao centróide espectral (68 dimensões).
+
+O Histograma de Gradientes Orientados (HOG) descreve a forma local da imagem~\cite{dalal2005hog}. Em cada célula acumulam-se orientações de bordas. Crop e resize mudam a geometria; o blur as suaviza. No uso final, a imagem é redimensionada a $128{\times}128$ para o HOG, com células $16{\times}16$ e blocos $2{\times}2$ (1{.}568 dimensões).
+
+O Padrão Binário Local (LBP) compara cada pixel com os vizinhos em um círculo~\cite{ojala2002lbp}. Na versão uniforme ($P{=}8$, $R{=}1$), o histograma tem 10 bins. Compressão e blur mudam a relação entre um pixel e a vizinhança. O vetor é curto e complementa FFT e HOG.
+
+A fusão junta os três vetores já padronizados por família (\texttt{StandardScaler}) e alimenta um SVM com kernel RBF~\cite{cortes1995svm}. SVM foi preferido a $k$-NN (custo alto em muitos exemplos) e a CNN (menos leitura imediata por domínio) para o foco em robustez interpretável.
 
 %----------------------------------------------------------------------
 \section{Desenvolvimento}
 \label{sec:desenvolvimento}
 %----------------------------------------------------------------------
 
-A partir da fundamentação e dos experimentos da entrega anterior, o desenvolvimento concentrou-se em três decisões: qual base usar no app, como pré-processar a imagem e quais variantes digitais entram no treino.
+O desenvolvimento contempla a validação do pipeline clássico, a análise do papel da base de treino e a consolidação de uma solução alinhada ao aplicativo.
 
-\subsection{Escolhas finais de base e alinhamento REAL/FAKE}
+\subsection{Experimentos iniciais no CIFAKE}
 
-O CIFAKE validou o pipeline clássico, porém a resolução baixa e o domínio fechado não transferiram bem para fotos de celular. Tentativas com CelebA só como REAL e com coleções de IA de rede sem REAL proporcional do mesmo tipo de cena também falharam na prática: o classificador aprendia o assunto da foto (rosto de estúdio, estilo de post) em vez do sinal de síntese. No cruzamento COCO (REAL diverso) com FAKE de rede social, a FFT ficou perto do acaso (cerca de 53\%).
+Os primeiros experimentos usaram o CIFAKE~\cite{bird2024cifake} em $32{\times}32$. Treinar o SVM só nas imagens originais chegou a 92,04\% de fusão no teste limpo, mas a acurácia caiu para cerca de 54\% após crop, blur ou pipeline, no mesmo estilo de falha visto no ZeroGPT. Incluir as transformações no treino recuperou robustez: a fusão ficou acima de 71\% após o pipeline, com queda moderada no teste original (86,08\%). A Tabela~\ref{tab:cifake} resume a fusão nos dois protocolos.
 
-A escolha final foi gerar 5{.}000 pares locais: cada foto real do COCO~\cite{coco2017} recebe uma versão sintética com a mesma pose e composição. O fluxo usa BLIP para descrever a cena e Stable Diffusion 1.5 com ControlNet Depth (profundidade MiDaS) para gerar a imagem IA. Assim, REAL e FAKE passam a ser o par inverso, e o SVM aprende a diferença de aparência, e não só o conteúdo.
+\begin{table}[ht]
+\centering
+\small
+\caption{Fusão no CIFAKE: treino só no original versus treino com transformações.}
+\label{tab:cifake}
+\begin{tabular}{lrrr}
+\toprule
+Transformação & Só original & Com transf. & Diferença \\
+\midrule
+original     & 0,9204 & 0,8608 & $-$0,0596 \\
+JPEG 70      & 0,9153 & 0,8676 & $-$0,0477 \\
+crop 25\%    & 0,5652 & 0,7786 & $+$0,2134 \\
+blur $3{\times}3$ & 0,5371 & 0,8178 & $+$0,2807 \\
+pipeline     & 0,5518 & 0,7119 & $+$0,1601 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-A Figura~\ref{fig:par} mostra um exemplo de par. A Figura~\ref{fig:fluxo} resume o fluxo final do detector.
+Mesmo com essa recuperação, duas barreiras ficaram para um aplicativo: a resolução forçada a $32{\times}32$ e o domínio CIFAR-10, bem diferente de fotos reais em alta resolução.
+
+\subsection{Evolução das bases}
+
+Antes da solução final, outras bases foram testadas. O problema comum foi o domínio desalinhado: o classificador aprendia diferenças de conteúdo, e não artefatos de síntese. A Tabela~\ref{tab:bases} resume o panorama.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Bases experimentadas e motivo do abandono no detector do app.
+Referências: CIFAKE~\cite{bird2024cifake}, Harvard AIGI~\cite{harvardAIGI}, COCO~\cite{coco2017}.}
+\label{tab:bases}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}p{2.8cm}p{3.6cm}p{6.0cm}@{}}
+\toprule
+\textbf{Base} & \textbf{Papel} & \textbf{Problema} \\
+\midrule
+CIFAKE
+  & REAL/FAKE $32{\times}32$
+  & Resolução baixa; falha no app com foto real \\
+CelebA
+  & Só rostos (REAL)
+  & Muitos falsos positivos em fotos gerais \\
+Harvard AIGI
+  & Só FAKE de rede
+  & Sem REAL proporcional do mesmo universo \\
+COCO e Harvard
+  & REAL + FAKE misturados
+  & Domínios diferentes; FFT perto do acaso ($\sim$53\%) \\
+\textbf{Pares COCO e IA}
+  & 5k + 5k alinhados
+  & Base final adotada no VerifAI \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Usar CelebA só como REAL gerou muitos falsos positivos em fotos gerais: o SVM ligava ``rosto de estúdio'' à classe REAL. Coleções de IA de Instagram e Twitter/X~\cite{harvardAIGI}, sem REAL do mesmo universo, também não resolvem. O cruzamento COCO com Harvard deixou a FFT perto do acaso (cerca de 53\%). A lição prática é simples: para o app, REAL e FAKE precisam ser o par inverso.
+
+A escolha final foi gerar 5{.}000 pares locais a partir de fotos COCO. O fluxo usa BLIP para descrever a cena e Stable Diffusion 1.5 com ControlNet Depth (profundidade MiDaS) para gerar a imagem sintética, mantendo pose e composição. A Figura~\ref{fig:par} mostra um exemplo. A Figura~\ref{fig:fluxo} resume o fluxo do detector final.
 
 \begin{figure}[ht]
 \centering
@@ -99,16 +185,10 @@ A Figura~\ref{fig:par} mostra um exemplo de par. A Figura~\ref{fig:fluxo} resume
 \label{fig:fluxo}
 \end{figure}
 
-\subsection{Pré-processamento e aumento de dados}
-
-Diferente do CIFAKE ($32{\times}32$), o pipeline final encaixa a foto inteira em $224{\times}224$ mantendo a proporção (letterbox). A borda usa reflexão, e não preenchimento preto, porque faixas pretas criavam anéis artificiais no espectro FFT. O HOG usa resolução interna de $128{\times}128$. Treino e app passam pelo mesmo formato.
-
-No treino entram seis variantes leves da mesma imagem: original, JPEG 90 e 70, resize à metade, blur gaussiano $3{\times}3$ e um pipeline que combina crop de 25\%, resize $0{,}5$ e JPEG 70. Crops fortes e JPEG 50 ficam só na avaliação de robustez. A ideia é preparar o modelo para a circulação digital sem apagar o sinal que a FFT precisa aprender.
-
 \subsection{Implementação}
 \label{sec:implementacao}
 
-A implementação mantém a linha clássica escolhida antes: descritores FFT, HOG e LBP concatenados (fusão) e SVM com kernel RBF~\cite{cortes1995svm,dalal2005hog,ojala2002lbp,gonzalez2018}. A Tabela~\ref{tab:dims} resume as dimensões no pipeline final.
+O pipeline final encaixa a foto inteira em $224{\times}224$ mantendo a proporção (letterbox). A borda usa reflexão (\texttt{BORDER\_REFLECT\_101}), e não preenchimento preto, porque faixas pretas criavam anéis artificiais no espectro FFT. O HOG usa resolução interna de $128{\times}128$. A Tabela~\ref{tab:dims} resume as dimensões.
 
 \begin{table}[ht]
 \centering
@@ -126,20 +206,22 @@ Fusão & 1{.}646 & concatenação padronizada \\
 \end{tabular}
 \end{table}
 
-A FFT 2D é aplicada em escala de cinza, com espectro centralizado, magnitude logarítmica e perfil radial. Não há normalização min-max por imagem, para preservar diferenças absolutas de energia de alta frequência. Cada família de features é padronizada com \texttt{StandardScaler} ajustado só no treino. Os parâmetros do SVM são $C{=}10$ e $\gamma{=}\mathrm{auto}$, com peso maior na classe REAL para reduzir falso positivo no aplicativo. O treino usa ThunderSVM na GPU e, se preciso, \texttt{sklearn} na CPU.
+No treino entram seis variantes leves: original, JPEG 90 e 70, resize à metade, blur gaussiano $3{\times}3$ e um pipeline que combina crop de 25\%, resize $0{,}5$ e JPEG 70. Crops fortes e JPEG 50 ficam só na avaliação de robustez.
 
-O protocolo de avaliação usa 4{.}000 pares no treino (8{.}000 imagens) e 1{.}000 pares no teste (2{.}000 imagens), com divisão por par e semente fixa. Cada imagem de treino gera seis amostras (as variantes acima), cerca de 48{.}000 vetores por família. O aplicativo Streamlit (VerifAI) refaz o mesmo caminho: letterbox 224, extração das features, scalers do treino e probabilidade de conteúdo sintético pela fusão. Entre 40\% e 60\% o resultado é tratado como inconclusivo; scores de FFT e HOG aparecem como apoio.
+O protocolo usa 4{.}000 pares no treino (8{.}000 imagens) e 1{.}000 pares no teste (2{.}000 imagens), com divisão por par e semente fixa. Cada imagem de treino gera seis amostras, cerca de 48{.}000 vetores por família. O SVM usa $C{=}10$, $\gamma{=}\mathrm{auto}$ e peso maior na classe REAL. O treino roda com ThunderSVM na GPU e, se preciso, com \texttt{sklearn} na CPU.
+
+O aplicativo Streamlit (VerifAI) refaz o mesmo caminho do treino: letterbox 224, extração de FFT, HOG e LBP, scalers do treino e probabilidade de conteúdo sintético pela fusão. Entre 40\% e 60\% o resultado é tratado como inconclusivo. Scores de FFT e HOG aparecem como apoio. Não há grid de janelas: entra a imagem inteira.
 
 %----------------------------------------------------------------------
 \section{Avaliação}
 \label{sec:avaliacao}
 %----------------------------------------------------------------------
 
-A avaliação mede a acurácia no holdout de pares e a queda após transformações digitais, sem retreinar o classificador. A base de teste compartilha a distribuição do treino (ambos do universo COCO pareado), o que avalia generalização dentro desse domínio, e não para a web aberta.
+A avaliação mede a acurácia no holdout de pares e a queda após transformações digitais, sem retreinar o classificador. A base de teste compartilha a distribuição do treino (universo COCO pareado), o que avalia generalização dentro desse domínio, e não para a web aberta.
 
 \subsection{Metodologia}
 
-Para cada imagem do holdout calculam-se FFT, HOG, LBP e a fusão. Treinam-se quatro SVMs (um por família e um de fusão). No teste limpo reportam-se acurácia, precisão na classe FAKE e recall na classe REAL. Na robustez, as mesmas imagens de teste passam por JPEG 90, 70 e 50, resize $0{,}5$, blur $3{\times}3$, crops de 10\%, 25\% e 40\% e o pipeline combinado. A métrica principal continua sendo a acurácia da fusão, o detector usado no app.
+Para cada imagem do holdout calculam-se FFT, HOG, LBP e a fusão. Treinam-se quatro SVMs (um por família e um de fusão). No teste limpo reportam-se acurácia, precisão na classe FAKE e recall na classe REAL. Na robustez, as mesmas imagens de teste passam por JPEG 90, 70 e 50, resize $0{,}5$, blur $3{\times}3$, crops de 10\%, 25\% e 40\% e o pipeline combinado. A métrica principal é a acurácia da fusão, o detector usado no app.
 
 \subsection{Resultados no holdout}
 
@@ -201,9 +283,9 @@ Pipeline     & 0,7955 & 0,0860 \\
 \label{fig:heat}
 \end{figure}
 
-Comparando com o CIFAKE da entrega anterior (cerca de 92\% no original e queda forte após crop ou blur sem aumento adequado) e com o cruzamento Harvard e COCO (cerca de 53\% na FFT), a base pareada recupera precisão e se aproxima melhor do uso do app, desde que a imagem de teste esteja ligada ao universo treinado.
+Comparando com o CIFAKE (cerca de 92\% no original e queda forte sem aumento adequado) e com o cruzamento Harvard e COCO (cerca de 53\% na FFT), a base pareada recupera precisão e se aproxima melhor do uso do app, desde que a imagem de teste esteja ligada ao universo treinado.
 
-As Figuras~\ref{fig:ex-real} e~\ref{fig:ex-ia} ilustram saídas típicas do VerifAI em inspeção manual.
+As Figuras~\ref{fig:ex-real} e~\ref{fig:ex-ia} ilustram saídas típicas do VerifAI.
 
 \begin{figure}[ht]
 \centering
@@ -219,20 +301,22 @@ As Figuras~\ref{fig:ex-real} e~\ref{fig:ex-ia} ilustram saídas típicas do Veri
 \label{fig:ex-ia}
 \end{figure}
 
-\subsection{Discussão dos resultados}
+\subsection{Discussão}
 
-Os pares com ControlNet ensinam a diferença entre a mesma cena real e a mesma cena sintética. A fusão (88,15\%) fica acima da FFT isolada (75\%), o que sugere que HOG e LBP complementam o espectro quando a geometria é compartilhada. Dentro do domínio e sob as transformações do escopo inicial, o detector cumpre o objetivo de robustez no app.
+Os pares com ControlNet ensinam a diferença entre a mesma cena real e a mesma cena sintética. A fusão (88,15\%) fica acima da FFT isolada (75\%), o que sugere que HOG e LBP complementam o espectro quando a geometria é compartilhada. O aumento leve no treino prepara o modelo para JPEG, resize e blur. O letterbox 224 permite usar a foto completa no app, no mesmo formato do treino.
 
-Fora desse domínio, com imagens bem diferentes das treinadas (outros geradores, selfies fortes, prints de tela), o SVM com features manuais perde precisão e confunde REAL com IA. Isso é esperado: os descritores são fixos e não criam representações novas quando o estilo visual muda. Para um detector mais geral, deep learning seria o próximo passo natural~\cite{bird2024cifake}. Para este trabalho, com foco em interpretar o modelo e entregar um app clássico, o SVM permanece adequado.
+Dentro do domínio e sob as transformações do escopo inicial, o detector cumpre o objetivo de robustez. Fora desse domínio, com imagens bem diferentes das treinadas (outros geradores, selfies fortes, prints de tela), o SVM com features manuais perde precisão e confunde REAL com IA. Isso é esperado: os descritores são fixos e não criam representações novas quando o estilo visual muda. Para um detector mais geral, deep learning seria o próximo passo natural~\cite{bird2024cifake}. Neste trabalho, com foco em interpretar o modelo e entregar um app clássico, o SVM permanece adequado.
+
+Algumas ameaças à validade devem ser consideradas. Os pares FAKE vêm de um único gerador (SD 1.5 com Depth). Os 1{.}000 pares de teste compartilham a distribuição dos 4{.}000 de treino. JPEG e resize no experimento aproximam, mas não repetem exatamente o pipeline de cada rede social. Um benchmark in-the-wild continua pendente.
 
 %----------------------------------------------------------------------
 \section{Conclusão}
 \label{sec:conclusao}
 %----------------------------------------------------------------------
 
-O objetivo do projeto era medir a robustez de um detector clássico após transformações digitais e entregar uma solução utilizável. Esse objetivo foi atingido no domínio da base pareada: a fusão chegou a 88,15\% no holdout 4{.}000/1{.}000 e se manteve acima de 87\% em JPEG, resize e blur leves, com o VerifAI avaliando a imagem inteira no mesmo formato do treino.
+O objetivo deste trabalho é medir a robustez de um detector clássico após transformações digitais e entregar uma solução utilizável. No domínio da base pareada, esse objetivo é atendido: a fusão chega a 88,15\% no holdout 4{.}000/1{.}000 e se mantém acima de 87\% em JPEG, resize e blur leves, com o VerifAI avaliando a imagem inteira no mesmo formato do treino.
 
-A principal lição de desenvolvimento é que a base importa tanto quanto o classificador. CIFAKE, CelebA e FAKE de rede sem REAL inverso não bastaram para o app. Só com pares COCO e IA alinhados em cena e pose o SVM passou a separar síntese de conteúdo.
+Observa-se que a base importa tanto quanto o classificador. O CIFAKE evidencia o problema da robustez e o ganho do aumento no treino. CelebA e FAKE de rede sem REAL inverso não bastam para o app. Com pares COCO e IA alinhados em cena e pose, o SVM passa a separar síntese de conteúdo de forma útil na prática.
 
 Como trabalhos futuros, duas linhas se destacam. A primeira é especializar a detecção em duas etapas: identificar o tipo de transformação e depois aplicar um modelo REAL/IA treinado para aquele caso. A segunda é reforçar a base com dados mais próximos do que circula na internet, mantendo REAL e FAKE proporcionais do mesmo contexto. Com volume e diversidade suficientes, a migração de SVM com features manuais para deep learning também passa a fazer sentido.
 
