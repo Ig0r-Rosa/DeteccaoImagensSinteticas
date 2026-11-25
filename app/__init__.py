@@ -1,1 +1,1 @@
-"""Aplicacao de deteccao de imagens sinteticas."""
+"""Pacote da aplicação VerifAI."""
