@@ -1,1 +1,0 @@
-"""Pipeline REAL → JSON → imagem IA (com retomada)."""

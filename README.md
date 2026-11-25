@@ -29,7 +29,7 @@ DeteccaoImagensSinteticas/
 
 | Pasta | Papel |
 |-------|--------|
-| `cod/` | Treino e features (`main_v3.ipynb`, `v3/`) |
+| `cod/` | Treino (`main.ipynb`, `data.py`, `features.py`, `svm.py`) |
 | `app/` + `app.py` | Interface Streamlit |
 | `base/` | Imagens de treino (não versionadas) |
 | `artigos/` | Relatórios LaTeX |
@@ -54,8 +54,8 @@ Detalhes: [`base/README.md`](base/README.md).
 | Passo | Comando / arquivo |
 |-------|-------------------|
 | Bases | Drive acima → `base/` |
-| Notebook | `cod/main_v3.ipynb` (kernel do `.venv`) |
-| Modos | `avaliacao` = 4000/1000 · `app` = 5000 (teste no app) |
+| Notebook | `cod/main.ipynb` (kernel do `.venv`) |
+| Split | 4000 treino / 1000 teste |
 | Modelos | `cod/models/svm_v3_*.pkl` |
 | App | `./run_app.sh` |
 

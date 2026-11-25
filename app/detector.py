@@ -12,12 +12,12 @@ import numpy as np
 from PIL import Image
 from sklearn.exceptions import InconsistentVersionWarning
 
-# Features iguais às do treino (cod/v3).
+# Features iguais às do treino (cod/).
 _COD = Path(__file__).resolve().parents[1] / "cod"
 if str(_COD) not in sys.path:
     sys.path.insert(0, str(_COD))
-from v3.data import FEATURE_SIZE, letterbox_rgb  # noqa: E402
-from v3.features import (  # noqa: E402
+from data import FEATURE_SIZE, letterbox_rgb  # noqa: E402
+from features import (  # noqa: E402
     extrair_features_fft,
     extrair_features_hog,
     extrair_features_lbp,

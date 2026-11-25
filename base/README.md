@@ -30,9 +30,8 @@ Mesmo nome de arquivo (`00042.jpg`) = **par alinhado**.
 
 ## Treino no notebook
 
-| Modo | Treino | Teste |
-|------|--------|-------|
-| `avaliacao` | 4000 pares | 1000 pares |
-| `app` | 5000 pares | só no app |
+| Treino | Teste |
+|--------|-------|
+| 4000 pares | 1000 pares |
 
-Arquivo: `cod/main_v3.ipynb` · tag de cache `v3pares`.
+Arquivo: `cod/main.ipynb` · tag de cache `v3pares`.

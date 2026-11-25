@@ -1,0 +1,5 @@
+"""Treino VerifAI (v3): features clássicas + SVM."""
+
+from .data import FEATURE_SIZE, HOG_SIZE
+
+__all__ = ["FEATURE_SIZE", "HOG_SIZE"]

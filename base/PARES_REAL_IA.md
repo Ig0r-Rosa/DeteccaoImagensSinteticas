@@ -17,9 +17,6 @@ https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=shari
 
 ## Treino
 
-Use `cod/main_v3.ipynb`:
+Use `cod/main.ipynb` com split **4000/1000**.
 
-1. `MODO = "avaliacao"` → 4000/1000  
-2. `MODO = "app"` → 5000 no treino (teste no VerifAI)
-
-Ferramentas de geração (torch/diffusers/BLIP) foram removidas do `.venv` após concluir esta etapa.
+Código de geração antigo: `cod/tentativas/pares/`.
