@@ -8,77 +8,105 @@ Trabalho final — **INE410159 / TRV410001 — Visão Computacional** (UFSC, 202
 
 ## Objetivo
 
-Medir a **robustez** de um detector clássico (FFT / HOG / LBP + SVM) quando imagens reais e sintéticas sofrem transformações típicas de redes sociais.
+Medir a **robustez** de um detector clássico (FFT / HOG / LBP + SVM) quando imagens reais e sintéticas sofrem transformações típicas de redes sociais (JPEG, crop, resize, blur, etc.).
 
-## Estrutura do repositório
+---
+
+## Estrutura
 
 ```
 DeteccaoImagensSinteticas/
-├── README.md
+├── app.py                 # Streamlit (VerifAI)
+├── app/                   # UI + detector
+├── cod/
+│   ├── main.ipynb         # treino / avaliação
+│   ├── data.py            # pares + letterbox
+│   ├── features.py        # FFT / HOG / LBP
+│   ├── svm.py             # treino SVM
+│   ├── models/            # .pkl
+│   ├── results/           # CSV e gráficos
+│   └── tentativas/        # v1, v2 e geração antiga
+├── base/                  # datasets (local)
+├── artigos/               # relatórios LaTeX
+├── docs/                  # entregas Moodle
+├── exemplos/
+├── referencias/
 ├── requirements.txt
-├── run_app.sh              # sobe o app no .venv
-├── app.py                  # Streamlit (VerifAI)
-├── app/                    # inferência (detector)
-├── cod/                    # notebooks + pacote v3 + models
-├── base/                   # datasets (local; ver base/README.md)
-├── artigos/                # 1 pasta por entrega (.tex + .pdf + compilar.sh)
-├── docs/                   # entregas Moodle + checklists
-├── exemplos/               # screenshots ZeroGPT + HTMLs
-└── referencias/            # PDFs de papers
+└── run_app.sh
 ```
 
 | Pasta | Papel |
 |-------|--------|
-| `cod/` | Treino (`main.ipynb`, `data.py`, `features.py`, `svm.py`) |
-| `app/` + `app.py` | Interface Streamlit |
-| `base/` | Imagens de treino (não versionadas) |
+| `cod/` | Treino modular + modelos |
+| `app/` + `app.py` | Interface VerifAI |
+| `base/` | Pares REAL × IA (não versionados) |
 | `artigos/` | Relatórios LaTeX |
-| `docs/` | Entregas e tarefas |
-| `exemplos/` | Material exploratório |
-| `referencias/` | Artigos de apoio |
+| `docs/` | Entregas e checklists |
+
+---
 
 ## Bases (pares REAL × IA)
 
-Download (Drive):  
+Download:  
 https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=sharing
 
-| Pasta | Papel |
-|-------|--------|
+| Pasta | Conteúdo |
+|-------|----------|
 | `base/landscape_real/` | REAL (5k) |
 | `base/pares_ia/` | FAKE pareada (5k) |
 
-Detalhes: [`base/README.md`](base/README.md).
+Mesmo nome de arquivo = mesmo par. Detalhes: [`base/README.md`](base/README.md).
 
-## Treino (v3) e app
+---
 
-| Passo | Comando / arquivo |
-|-------|-------------------|
-| Bases | Drive acima → `base/` |
-| Notebook | `cod/main.ipynb` (kernel do `.venv`) |
-| Split | 4000 treino / 1000 teste |
-| Modelos | `cod/models/svm_v3_*.pkl` |
-| App | `./run_app.sh` |
+## Como rodar
 
-- Entrada: **imagem inteira** (letterbox 224; HOG 128).
-- Veredito do app: score da **Fusão**.
-- Faixa **40–60%** → inconclusivo.
+### 1. Ambiente
 
 ```bash
 python -m pip install -r requirements.txt
+```
+
+Use o `.venv` do projeto (ThunderSVM).
+
+### 2. Treino
+
+| Item | Valor |
+|------|--------|
+| Notebook | `cod/main.ipynb` |
+| Split | **4000** treino / **1000** teste |
+| Entrada | Imagem inteira (letterbox 224; HOG 128) |
+| Saída | `cod/models/svm_v3_*.pkl` + scalers |
+
+O app usa o modelo de **Fusão** (FFT+HOG+LBP).
+
+### 3. App (VerifAI)
+
+```bash
 ./run_app.sh
 ```
+
+- Score da Fusão = chance de IA  
+- Faixa **40–60%** → inconclusivo  
+- Também dá para comparar Só FFT / HOG / LBP nas configurações  
+
+Mais detalhes do código: [`cod/README.md`](cod/README.md).
+
+---
 
 ## Artigos
 
 ```bash
-cd artigos/entrega-02-revisao && ./compilar.sh
+cd artigos/entrega-03 && ./compilar.sh
 ```
 
-Detalhes: [`artigos/README.md`](artigos/README.md).
+Índice: [`artigos/README.md`](artigos/README.md).
+
+---
 
 ## Entregas Moodle
 
-Prazo: **30/11/2026** · [`docs/entregas.md`](docs/entregas.md) · checklists em [`docs/tarefas/`](docs/tarefas/).
+Prazo: **30/11/2026** · [`docs/entregas.md`](docs/entregas.md)
 
 | # | Entrega | Checklist |
 |---|---------|-----------|
@@ -88,12 +116,8 @@ Prazo: **30/11/2026** · [`docs/entregas.md`](docs/entregas.md) · checklists em
 | 4 | Vídeo | [`docs/tarefas/04-video.md`](docs/tarefas/04-video.md) |
 | 5 | Poster | [`docs/tarefas/05-poster.md`](docs/tarefas/05-poster.md) |
 
-## Abordagem
-
-Features clássicas → SVM → medir queda de acurácia por transformação (JPEG, crop, resize, blur, pipeline).
-
-Docs do código: [`cod/README.md`](cod/README.md) · [`cod/docs/explicacao-main.md`](cod/docs/explicacao-main.md).
+---
 
 ## Regras de IAGen
 
-Se usar Copilot/Cursor/ChatGPT: declarar ferramenta e prompts em `docs/iagen.md` (criar quando aplicável).
+Se usar Copilot / Cursor / ChatGPT: declarar ferramenta e prompts em `docs/iagen.md`.
