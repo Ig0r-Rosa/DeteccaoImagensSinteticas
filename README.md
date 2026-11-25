@@ -115,9 +115,3 @@ Prazo: **30/11/2026** · [`docs/entregas.md`](docs/entregas.md)
 | 3 | Slides | [`docs/tarefas/03-slides.md`](docs/tarefas/03-slides.md) |
 | 4 | Vídeo | [`docs/tarefas/04-video.md`](docs/tarefas/04-video.md) |
 | 5 | Poster | [`docs/tarefas/05-poster.md`](docs/tarefas/05-poster.md) |
-
----
-
-## Regras de IAGen
-
-Se usar Copilot / Cursor / ChatGPT: declarar ferramenta e prompts em `docs/iagen.md`.
