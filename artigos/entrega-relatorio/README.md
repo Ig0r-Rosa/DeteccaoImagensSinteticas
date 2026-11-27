@@ -13,14 +13,13 @@ entrega-relatorio/
 ├── main.pdf          ← gerar com ./compilar.sh
 ├── compilar.sh
 ├── configs/
-│   ├── links.tex     ← URLs (PENDENTE = preencher depois)
+│   ├── links.tex     ← URLs da entrega
 │   ├── referencias.bib
 │   ├── sbc-template.sty
 │   └── sbc.bst
 ├── suporte/          ← figuras (par, ExReal, ExIA, gráficos)
 └── anexos/
-    ├── README.md
-    └── poster.pdf    ← PENDENTE (copiar o poster aqui)
+    └── poster.pdf
 ```
 
 ## Compilar
@@ -37,9 +36,7 @@ cd artigos/entrega-relatorio
 | Dataset COCO | OK |
 | Dataset pares (Drive) | OK |
 | Checkpoint modelos (Drive) | OK |
-| GitHub | **PENDENTE** |
-| Google Presentation | **PENDENTE** |
-| YouTube | **PENDENTE** |
-| Poster PDF | **PENDENTE** → `anexos/poster.pdf` |
-
-Quando tiver a URL, edite só `configs/links.tex` e recompile.
+| GitHub | OK |
+| Apresentação (PDF no GitHub) | OK |
+| YouTube | OK |
+| Poster (PDF no GitHub) | OK |
