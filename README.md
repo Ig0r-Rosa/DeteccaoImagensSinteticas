@@ -2,7 +2,8 @@
 
 Trabalho final — **INE410159 / TRV410001 — Visão Computacional** (UFSC, 2026.2).
 
-**Autores:** Igor de Matos da Rosa · Nathália Geraldino Ribas
+**Autores:** Igor de Matos da Rosa · Nathália Geraldino Ribas  
+**Repositório:** https://github.com/Ig0r-Rosa/DeteccaoImagensSinteticas
 
 ---
 
@@ -10,50 +11,62 @@ Trabalho final — **INE410159 / TRV410001 — Visão Computacional** (UFSC, 202
 
 Medir a **robustez** de um detector clássico (FFT / HOG / LBP + SVM) quando imagens reais e sintéticas sofrem transformações típicas de redes sociais (JPEG, crop, resize, blur, etc.).
 
+A solução final é o **VerifAI**: app Streamlit que analisa a imagem inteira e devolve a chance de conteúdo sintético (modelo de **Fusão**).
+
 ---
 
 ## Estrutura
 
 ```
 DeteccaoImagensSinteticas/
-├── app.py                 # Streamlit (VerifAI)
-├── app/                   # UI + detector
+├── app.py / app/          # VerifAI (Streamlit + detector)
 ├── cod/
 │   ├── main.ipynb         # treino / avaliação
 │   ├── data.py            # pares + letterbox
 │   ├── features.py        # FFT / HOG / LBP
 │   ├── svm.py             # treino SVM
-│   ├── models/            # .pkl
+│   ├── models/            # checkpoints (.pkl) — local / Drive
 │   ├── results/           # CSV e gráficos
-│   └── tentativas/        # v1, v2 e geração antiga
-├── base/                  # datasets (local)
-├── artigos/               # relatórios LaTeX
-├── docs/                  # entregas Moodle
-├── exemplos/
-├── referencias/
+│   └── tentativas/        # notebooks v1 e v2
+├── base/                  # datasets (local / Drive)
+├── apresentacao/          # slides, poster e vídeo
+├── artigos/               # entregas LaTeX + relatório
+├── exemplos/              # testes exploratórios
 ├── requirements.txt
 └── run_app.sh
 ```
 
 | Pasta | Papel |
 |-------|--------|
-| `cod/` | Treino modular + modelos |
-| `app/` + `app.py` | Interface VerifAI |
-| `base/` | Pares REAL × IA (não versionados) |
-| `artigos/` | Relatórios LaTeX |
-| `docs/` | Entregas e checklists |
+| `app/` + `app.py` | Interface e inferência |
+| `cod/` | Treino modular + resultados |
+| `base/` | Pares REAL × IA e pasta `teste_app/` |
+| `apresentacao/` | PDF dos slides, poster e vídeo |
+| `artigos/` | Relatório e entregas intermediárias |
 
 ---
 
-## Bases (pares REAL × IA)
+## Links úteis
 
-Download:  
-https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=sharing
+| Item | Link |
+|------|------|
+| Dataset (pares) | https://drive.google.com/file/d/1rCeLicFZm_cDrxg0qjpc82ROfdeRGwra/view?usp=sharing |
+| Checkpoints (`.pkl`) | https://drive.google.com/file/d/1j8q-wCwH06oZBbQOCZ4EIS84k2nz5ry0/view?usp=sharing |
+| GitHub | https://github.com/Ig0r-Rosa/DeteccaoImagensSinteticas |
+
+Slides, poster e vídeo da entrega ficam em `apresentacao/`.
+
+---
+
+## Bases
+
+Extraia o pacote do Drive em `base/`:
 
 | Pasta | Conteúdo |
 |-------|----------|
-| `base/landscape_real/` | REAL (5k) |
-| `base/pares_ia/` | FAKE pareada (5k) |
+| `landscape_real/` | REAL (5k) |
+| `pares_ia/` | FAKE pareada (5k) |
+| `teste_app/` | 5 REAL + 5 IA × variantes (teste manual no app) |
 
 Mesmo nome de arquivo = mesmo par. Detalhes: [`base/README.md`](base/README.md).
 
@@ -67,7 +80,7 @@ Mesmo nome de arquivo = mesmo par. Detalhes: [`base/README.md`](base/README.md).
 python -m pip install -r requirements.txt
 ```
 
-Use o `.venv` do projeto (ThunderSVM).
+Use o `.venv` do projeto (ThunderSVM). Coloque os `.pkl` em `cod/models/` (Drive acima).
 
 ### 2. Treino
 
@@ -78,40 +91,37 @@ Use o `.venv` do projeto (ThunderSVM).
 | Entrada | Imagem inteira (letterbox 224; HOG 128) |
 | Saída | `cod/models/svm_v3_*.pkl` + scalers |
 
-O app usa o modelo de **Fusão** (FFT+HOG+LBP).
-
 ### 3. App (VerifAI)
 
 ```bash
 ./run_app.sh
 ```
 
-- Score da Fusão = chance de IA  
-- Faixa **40–60%** → inconclusivo  
-- Também dá para comparar Só FFT / HOG / LBP nas configurações  
+- Veredito padrão = score da **Fusão**
+- Faixa **40–60%** → inconclusivo
+- FFT / HOG / LBP disponíveis nas configurações
 
-Mais detalhes do código: [`cod/README.md`](cod/README.md).
+Mais detalhes: [`cod/README.md`](cod/README.md).
 
 ---
 
 ## Artigos
 
-```bash
-cd artigos/entrega-03 && ./compilar.sh
-```
+| Pasta | Conteúdo |
+|-------|----------|
+| `artigos/entrega-01` … `03` | Entregas intermediárias |
+| `artigos/entrega-relatorio` | Relatório final |
 
-Índice: [`artigos/README.md`](artigos/README.md).
+```bash
+cd artigos/entrega-relatorio && ./compilar.sh
+```
 
 ---
 
-## Entregas Moodle
+## Resultados principais
 
-Prazo: **30/11/2026** · [`docs/entregas.md`](docs/entregas.md)
-
-| # | Entrega | Checklist |
-|---|---------|-----------|
-| 1 | Relatório | [`docs/tarefas/01-relatorio.md`](docs/tarefas/01-relatorio.md) |
-| 2 | Código | [`docs/tarefas/02-codigo.md`](docs/tarefas/02-codigo.md) |
-| 3 | Slides | [`docs/tarefas/03-slides.md`](docs/tarefas/03-slides.md) |
-| 4 | Vídeo | [`docs/tarefas/04-video.md`](docs/tarefas/04-video.md) |
-| 5 | Poster | [`docs/tarefas/05-poster.md`](docs/tarefas/05-poster.md) |
+| Métrica | Valor |
+|---------|--------|
+| Acurácia da fusão (holdout) | **88,15%** |
+| JPEG / resize / blur | em geral **> 87%** |
+| Crop forte / pipeline | maiores quedas (~74–80%) |
