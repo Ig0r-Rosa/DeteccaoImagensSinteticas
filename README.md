@@ -1,7 +1,5 @@
 # Detecção de Imagens Sintéticas após Transformações
 
-Trabalho final — **INE410159 / TRV410001 — Visão Computacional** (UFSC, 2026.2).
-
 **Autores:** Igor de Matos da Rosa · Nathália Geraldino Ribas  
 **Repositório:** https://github.com/Ig0r-Rosa/DeteccaoImagensSinteticas
 
